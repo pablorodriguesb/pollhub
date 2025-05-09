@@ -44,6 +44,9 @@ build/
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
+# Arquivo de configuração local
+src/main/resources/application.properties
+
 # Package Files #
 *.jar
 *.war
