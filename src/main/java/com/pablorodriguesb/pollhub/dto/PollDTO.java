@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -18,7 +19,7 @@ public class PollDTO {
     private String description;
 
     @NotNull(message = "Campo isPublic é obrigatório")
-    private Boolean isPublic;
+    private boolean isPublic;
 
     @NotNull(message = "Opções são obrigatórias")
     private List<OptionDTO> options;
