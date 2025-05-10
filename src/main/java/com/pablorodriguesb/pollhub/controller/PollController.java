@@ -3,6 +3,7 @@ package com.pablorodriguesb.pollhub.controller;
 import com.pablorodriguesb.pollhub.dto.OptionDTO;
 import com.pablorodriguesb.pollhub.dto.PollDTO;
 import com.pablorodriguesb.pollhub.dto.PollResponseDTO;
+import com.pablorodriguesb.pollhub.exception.ResourceNotFoundException;
 import com.pablorodriguesb.pollhub.model.Option;
 import com.pablorodriguesb.pollhub.model.Poll;
 import com.pablorodriguesb.pollhub.model.User;
@@ -149,9 +150,30 @@ public class PollController {
 
     // detalha uma enquete pelo Id.
     @GetMapping("/{id}")
-    public ResponseEntity<Poll> getPollById(@PathVariable Long id) {
-        return pollService.getPollById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<PollResponseDTO> getPollById(@PathVariable Long id) {
+        Poll poll = pollService.getPollById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Enquete não encontrada"));
+
+        // converter para dto
+        PollResponseDTO dto = new PollResponseDTO();
+        dto.setId(poll.getId());
+        dto.setTitle(poll.getTitle());
+        dto.setDescription(poll.getDescription());
+        dto.setPublic(poll.getIsPublic());
+        dto.setCreatedAt(poll.getCreatedAt());
+        dto.setCreatedBy(poll.getCreatedBy().getUsername());
+
+        List<OptionDTO> optionDTOs = poll.getOptions().stream()
+                .map(option -> {
+                    OptionDTO optionDTO = new OptionDTO();
+                    optionDTO.setId(optionDTO.getId());
+                    optionDTO.setText(optionDTO.getText());
+                    return optionDTO;
+                })
+                .collect(Collectors.toList());
+        dto.setOptions(optionDTOs);
+
+        return ResponseEntity.ok(dto);
     }
 }
