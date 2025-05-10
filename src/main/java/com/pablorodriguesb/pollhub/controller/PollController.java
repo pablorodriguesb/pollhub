@@ -82,8 +82,32 @@ public class PollController {
 
     // lista todas enquetes publicas.
     @GetMapping("/public")
-    public ResponseEntity<List<Poll>> getPublicPolls() {
-        return ResponseEntity.ok(pollService.getPublicPolls());
+    public ResponseEntity<List<PollResponseDTO>> getPublicPolls() {
+        List<Poll> polls = pollService.getPublicPolls();
+        List<PollResponseDTO> dtos = polls.stream()
+                .map(poll -> {
+                    PollResponseDTO dto = new PollResponseDTO();
+                    dto.setId(poll.getId());
+                    dto.setTitle(poll.getTitle());
+                    dto.setDescription(poll.getDescription());
+                    dto.setPublic(poll.getIsPublic());
+                    dto.setCreatedAt(poll.getCreatedAt());
+                    dto.setCreatedBy(poll.getCreatedBy().getUsername());
+
+                    // converta as opcoes para optionDTO se necessario
+                    List<OptionDTO> optionDTOs = poll.getOptions().stream()
+                            .map(option -> {
+                                OptionDTO optionDTO = new OptionDTO();
+                                optionDTO.setId(option.getId());
+                                optionDTO.setText(option.getText());
+                                return optionDTO;
+                            })
+                            .collect(Collectors.toList());
+                    dto.setOptions(optionDTOs);
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
     // lista todas enquetes criadas por um usuario.
