@@ -29,20 +29,6 @@ public class VoteController {
         this.pollService = pollService;
     }
 
-    // endpoint para votar em uma enquete.
-    @PostMapping
-    public ResponseEntity<Vote> vote(
-            @RequestParam String username,
-            @RequestParam Long pollId,
-            @Valid @RequestBody Vote vote) {
-        User user = userService.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-        Poll poll = pollService.getPollById(pollId)
-                .orElseThrow(() -> new IllegalArgumentException("Enquete não encontrada"));
-        Vote createdVote = voteService.vote(user, poll, vote);
-        return ResponseEntity.ok(createdVote);
-    }
-
     // listar todos os votos de uma enquete.
     @GetMapping("/poll/{pollId}")
     public ResponseEntity<List<Vote>> getVotesByPoll(@PathVariable Long pollId) {
