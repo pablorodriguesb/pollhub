@@ -112,10 +112,39 @@ public class PollController {
 
     // lista todas enquetes criadas por um usuario.
     @GetMapping("/user/{username}")
-    public ResponseEntity<List<Poll>> getPollsByUser(@PathVariable String username) {
+    public ResponseEntity<List<PollResponseDTO>> getPollsByUser(@PathVariable String username) {
         User user = userService.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-        return ResponseEntity.ok(pollService.getPollsByUser(user));
+
+        List<Poll> polls = pollService.getPollsByUser(user);
+
+        // converter para lista de DTOs
+        List<PollResponseDTO> pollDTOs = polls.stream()
+                .map(poll -> {
+                    PollResponseDTO dto = new PollResponseDTO();
+                    dto.setId(poll.getId());
+                    dto.setTitle(poll.getTitle());
+                    dto.setDescription(poll.getDescription());
+                    dto.setPublic(poll.getIsPublic());
+                    dto.setCreatedAt(poll.getCreatedAt());
+                    dto.setCreatedBy(poll.getCreatedBy().getUsername());
+
+                    // converter opcoes
+                    List<OptionDTO> optionDTOs = poll.getOptions().stream()
+                            .map(option -> {
+                                OptionDTO optionDTO = new OptionDTO();
+                                optionDTO.setId(option.getId());
+                                optionDTO.setText(option.getText());
+                                return optionDTO;
+                            })
+                            .collect(Collectors.toList());
+                    dto.setOptions(optionDTOs);
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(pollDTOs);
     }
 
     // detalha uma enquete pelo Id.
