@@ -1,5 +1,6 @@
 package com.pablorodriguesb.pollhub.service;
 
+import com.pablorodriguesb.pollhub.model.Option;
 import com.pablorodriguesb.pollhub.model.Poll;
 import com.pablorodriguesb.pollhub.model.User;
 import com.pablorodriguesb.pollhub.repository.PollRepository;
@@ -22,6 +23,9 @@ public class PollService {
 
     // cria uma nova enquete, associando ao usuario criador e registrando data e hora.
     public Poll createPoll(Poll poll, User creator) {
+        for (Option option : poll.getOptions()) {
+            option.setPoll(poll); // definindo a relacao bidirecional
+        }
         poll.setCreatedAt(LocalDateTime.now());
         poll.setCreatedBy(creator);
         return pollRepository.save(poll);
