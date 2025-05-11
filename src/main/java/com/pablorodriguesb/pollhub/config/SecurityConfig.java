@@ -34,7 +34,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll() // libera endpoints da auth
                 .requestMatchers(HttpMethod.GET,
-                        "/api/polls/public", "/api/polls/*", "/api/polls/*/results").permitAll() // libera consulta publica
+                        "/api/polls",
+                        "/api/polls/public",
+                        "/api/polls/*",
+                        "/api/polls/*/results"
+                        ).permitAll()
                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
