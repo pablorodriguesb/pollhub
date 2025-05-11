@@ -72,6 +72,22 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // lista todas enquetes criadas por um usuario.
+    @GetMapping("/{username}/polls")
+    public ResponseEntity<List<PollResponseDTO>> getUserPolls(@PathVariable String username) {
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Usuário não encontrado"));
+
+        List<Poll> polls = pollService.getPollsByUserWithDetails(user);
+
+        return ResponseEntity.ok(
+                polls.stream()
+                        .map(pollService::convertToPollDTO)  // metodo auxiliar
+                        .collect(Collectors.toList())
+        );
+    }
+
     @GetMapping("/me/votes")
     public ResponseEntity<List<VoteResponseDTO>> getMyVotes(
             @AuthenticationPrincipal UserDetails userDetails) {

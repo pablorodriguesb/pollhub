@@ -77,23 +77,6 @@ public class PollController {
         );
     }
 
-    // lista todas enquetes criadas por um usuario.
-    @GetMapping("/user/{username}")
-    public ResponseEntity<List<PollResponseDTO>> getPollsByUser(@PathVariable String username) {
-        User user = userService.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Usuário não encontrado"));
-
-        List<Poll> polls = pollService.getPollsByUserWithDetails(user);
-
-        return ResponseEntity.ok(
-                polls.stream()
-                        .map(pollService::convertToPollDTO)  // metodo auxiliar
-                        .collect(Collectors.toList())
-        );
-    }
-
-
     // detalha uma enquete pelo Id.
     @GetMapping("/{id}")
     public ResponseEntity<PollResponseDTO> getPollById(@PathVariable Long id,

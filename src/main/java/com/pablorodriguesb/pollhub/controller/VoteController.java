@@ -29,14 +29,6 @@ public class VoteController {
         this.pollService = pollService;
     }
 
-    // listar todos os votos de um usuario.
-    @GetMapping("/user/{username}")
-    public ResponseEntity<List<Vote>> getVotesByUser(@PathVariable String username) {
-        User user = userService.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-        return ResponseEntity.ok(voteService.getVotesByUser(user));
-    }
-
     // listar todos os votos de uma enquete.
     @GetMapping("/poll/{pollId}")
     public ResponseEntity<List<Vote>> getVotesByPoll(@PathVariable Long pollId) {
