@@ -67,7 +67,7 @@ public class PollController {
     }
 
     // lista todas enquetes publicas.
-    @GetMapping("/public")
+    @GetMapping
     public ResponseEntity<List<PollResponseDTO>> getPublicPolls() {
         List<Poll> polls = pollService.getPublicPolls();
         return ResponseEntity.ok(
