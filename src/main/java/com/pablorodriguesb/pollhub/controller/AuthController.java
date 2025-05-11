@@ -7,6 +7,7 @@ import com.pablorodriguesb.pollhub.security.JwtTokenUtil;
 import com.pablorodriguesb.pollhub.service.CustomUserDetailsService;
 import com.pablorodriguesb.pollhub.service.UserService;
 import jakarta.validation.Valid;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,13 +36,13 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDTO) {
+    public ResponseEntity<String> register(@Valid @RequestBody UserDTO userDTO) {
         userService.registerUser(userDTO.toEntity());
         return ResponseEntity.ok("Usuário registrado com sucesso");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserDTO userDTO) throws
+    public ResponseEntity<AuthResponse> login(@RequestBody UserDTO userDTO) throws
             Exception {
         try {
             authenticationManager.authenticate(
@@ -59,6 +60,7 @@ public class AuthController {
     }
 
     // classe interna para responder o token
+    @Data
     static class AuthResponse {
         private final String token;
 
