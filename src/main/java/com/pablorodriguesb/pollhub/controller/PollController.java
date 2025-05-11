@@ -107,14 +107,14 @@ public class PollController {
     @PostMapping("/{id}/vote")
     public ResponseEntity<?> vote(
             @PathVariable Long id,
-            @Valid @RequestBody VoteDTO voteDTO,
+            @RequestParam Long optionId,
             @AuthenticationPrincipal UserDetails userDetails) {
 
         User voter = userService.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Usuário não encontrado"));
 
-        pollService.vote(id, voteDTO.getOptionId(), voter);
+        pollService.vote(id, optionId, voter);
         return ResponseEntity.ok().build();
     }
 
