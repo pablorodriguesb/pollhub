@@ -1,14 +1,17 @@
 package com.pablorodriguesb.pollhub.controller;
 
+import com.pablorodriguesb.pollhub.dto.VoteResponseDTO;
 import com.pablorodriguesb.pollhub.model.Poll;
 import com.pablorodriguesb.pollhub.model.User;
 import com.pablorodriguesb.pollhub.model.Vote;
 import com.pablorodriguesb.pollhub.service.PollService;
 import com.pablorodriguesb.pollhub.service.UserService;
 import com.pablorodriguesb.pollhub.service.VoteService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,19 +32,19 @@ public class VoteController {
         this.pollService = pollService;
     }
 
-    // listar todos os votos de uma enquete.
-    @GetMapping("/poll/{pollId}")
-    public ResponseEntity<List<Vote>> getVotesByPoll(@PathVariable Long pollId) {
-        Poll poll = pollService.getPollById(pollId)
-                .orElseThrow(() -> new IllegalArgumentException("Enquete não encontrada"));
-        return ResponseEntity.ok(voteService.getVotesByPoll(poll));
-    }
-
     // listar todos os votos de um usuario.
     @GetMapping("/user/{username}")
     public ResponseEntity<List<Vote>> getVotesByUser(@PathVariable String username) {
         User user = userService.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
         return ResponseEntity.ok(voteService.getVotesByUser(user));
+    }
+
+    // listar todos os votos de uma enquete.
+    @GetMapping("/poll/{pollId}")
+    public ResponseEntity<List<Vote>> getVotesByPoll(@PathVariable Long pollId) {
+        Poll poll = pollService.getPollById(pollId)
+                .orElseThrow(() -> new IllegalArgumentException("Enquete não encontrada"));
+        return ResponseEntity.ok(voteService.getVotesByPoll(poll));
     }
 }
