@@ -4,6 +4,7 @@ import com.pablorodriguesb.pollhub.dto.PollResponseDTO;
 import com.pablorodriguesb.pollhub.dto.UserDTO;
 import com.pablorodriguesb.pollhub.dto.UserResponseDTO;
 import com.pablorodriguesb.pollhub.dto.VoteResponseDTO;
+import com.pablorodriguesb.pollhub.exception.UserAlreadyExistsException;
 import com.pablorodriguesb.pollhub.model.Poll;
 import com.pablorodriguesb.pollhub.model.User;
 import com.pablorodriguesb.pollhub.model.Vote;
@@ -12,6 +13,7 @@ import com.pablorodriguesb.pollhub.service.UserService;
 import com.pablorodriguesb.pollhub.service.VoteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -57,10 +60,16 @@ public class UserController {
 
     // endpoint para cadastro de novo usuario.
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> registerUser(@Valid @RequestBody UserDTO userDTO) {
-        User user = convertToEntity(userDTO);
-        User createdUser = userService.registerUser(user);
-        return ResponseEntity.ok(convertToResponseDTO(createdUser));
+    public ResponseEntity<Object> registerUser(@Valid @RequestBody UserDTO userDTO) {
+        try {
+            User user = convertToEntity(userDTO);
+            User createdUser = userService.registerUser(user);
+            return ResponseEntity.ok(convertToResponseDTO(createdUser));
+        } catch (UserAlreadyExistsException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        }
     }
 
     // endpoint para buscar usuario por username.
