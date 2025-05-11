@@ -13,4 +13,6 @@ public class OptionDTO {
     @Size(max = 200, message = "Texto da opção deve ter no" +
             "máximo 200 caracteres")
     private String text;
+
+    private int voteCount;
 }
