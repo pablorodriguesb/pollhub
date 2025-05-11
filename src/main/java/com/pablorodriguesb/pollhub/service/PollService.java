@@ -112,14 +112,16 @@ public class PollService {
         dto.setPublic(poll.getIsPublic());
         dto.setCreatedAt(poll.getCreatedAt());
         dto.setCreatedBy(poll.getCreatedBy().getUsername());
-        List<OptionDTO> optionDTOs = poll.getOptions().stream()
-                .map(option -> {
-                    OptionDTO optionDTO = new OptionDTO();
-                    optionDTO.setId(option.getId());
-                    optionDTO.setText(option.getText());
-                    return optionDTO;
-                }).collect(Collectors.toList());
-        dto.setOptions(optionDTOs);
+
+        // Mapeamento das opções com contagem real
+        dto.setOptions(poll.getOptions().stream().map(option -> {
+            OptionDTO optionDTO = new OptionDTO();
+            optionDTO.setId(option.getId());
+            optionDTO.setText(option.getText());
+            optionDTO.setVoteCount(voteRepository.countByOption(option)); // Contagem dinâmica
+            return optionDTO;
+        }).collect(Collectors.toList()));
+
         return dto;
     }
 }
