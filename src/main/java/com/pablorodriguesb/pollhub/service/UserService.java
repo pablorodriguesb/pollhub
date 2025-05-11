@@ -25,26 +25,31 @@ public class UserService {
     // realizando cadastro de um novo usuario
     public User registerUser(User user) {
         // verificando se o email ja tem cadastro
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (userRepository.existsByEmailIgnoreCase(user.getEmail())) {
             throw new IllegalArgumentException("Email já está em uso.");
         }
+
         // verifica se o username ja tem cadastro
-        if(userRepository.existsByUsername(user.getUsername())) {
+        if (userRepository.existsByUsernameIgnoreCase(user.getUsername())) {
             throw new IllegalArgumentException("Nome de usuário já está em uso.");
         }
+
         // gerando hash de senha antes de salvar
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        // registrando data/hora do cadastro
         user.setDataCadastro(LocalDateTime.now());
+
         return userRepository.save(user);
     }
 
     // busca usuario pelo email
     public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmailIgnoreCase(email);
     }
 
     // busca usuario pelo username
     public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsernameIgnoreCase(username);
     }
 }

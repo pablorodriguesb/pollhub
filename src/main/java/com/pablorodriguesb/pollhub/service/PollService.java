@@ -42,12 +42,12 @@ public class PollService {
 
     // retorna as enquetes públicas.
     public List<Poll> getPublicPolls() {
-        return pollRepository.findByIsPublicTrue();
+        return pollRepository.findPublicPollsWithUser();
     }
 
     // retorna todas as enquetes especificas criadas por um usuario.
-    public List<Poll> getPollsByUser(User user) {
-        return pollRepository.findByCreatedBy(user);
+    public List<Poll> getPollsByUserWithDetails(User user) {
+        return pollRepository.findByCreatedByWithDetails(user);
     }
 
     // retorna todos os votos de um usuario.
