@@ -3,7 +3,7 @@ package com.pablorodriguesb.pollhub.service;
 import com.pablorodriguesb.pollhub.dto.OptionDTO;
 import com.pablorodriguesb.pollhub.dto.OptionResultDTO;
 import com.pablorodriguesb.pollhub.dto.PollResponseDTO;
-import com.pablorodriguesb.pollhub.dto.PollResultsDTO;
+import com.pablorodriguesb.pollhub.dto.PollResultDTO;
 import com.pablorodriguesb.pollhub.exception.BadRequestException;
 import com.pablorodriguesb.pollhub.exception.ResourceNotFoundException;
 import com.pablorodriguesb.pollhub.model.Option;
@@ -81,7 +81,7 @@ public class PollService {
         voteRepository.save(vote);
     }
 
-    public PollResultsDTO getResults(Long pollId) {
+    public PollResultDTO getResults(Long pollId) {
         Poll poll = pollRepository.findById(pollId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Enquete não encontrada"));
@@ -98,10 +98,10 @@ public class PollService {
                 })
                 .collect(Collectors.toList());
 
-        PollResultsDTO pollResultsDTO = new PollResultsDTO();
-        pollResultsDTO.setPollId(poll.getId());
-        pollResultsDTO.setResults(results);
-        return pollResultsDTO;
+        PollResultDTO pollResultDTO = new PollResultDTO();
+        pollResultDTO.setPollId(poll.getId());
+        pollResultDTO.setResults(results);
+        return pollResultDTO;
     }
 
     public PollResponseDTO convertToPollDTO(Poll poll) {

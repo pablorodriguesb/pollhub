@@ -120,7 +120,7 @@ public class PollController {
 
     // logica de privacidade da enquete
     @GetMapping("/{id}/results")
-    public ResponseEntity<PollResultsDTO> getResults(
+    public ResponseEntity<PollResultDTO> getResults(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -142,7 +142,7 @@ public class PollController {
                         "Acesso negado: você não é o criador desta enquete");
             }
         }
-        PollResultsDTO results = pollService.getResults(id);
+        PollResultDTO results = pollService.getResults(id);
         return ResponseEntity.ok(results);
     }
 }

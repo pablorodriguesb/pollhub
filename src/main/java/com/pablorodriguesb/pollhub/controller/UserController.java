@@ -65,9 +65,9 @@ public class UserController {
 
     // endpoint para buscar usuario por username.
     @GetMapping("/username/{username}")
-    public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) {
+    public ResponseEntity<UserResponseDTO> getUserByUsername(@PathVariable String username) {
         return userService.findByUsername(username)
-                .map(this::convertToDTO)
+                .map(this::convertToResponseDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
