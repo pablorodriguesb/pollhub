@@ -1,6 +1,8 @@
 package com.pablorodriguesb.pollhub.service;
 
+import com.pablorodriguesb.pollhub.dto.OptionDTO;
 import com.pablorodriguesb.pollhub.dto.OptionResultDTO;
+import com.pablorodriguesb.pollhub.dto.PollResponseDTO;
 import com.pablorodriguesb.pollhub.dto.PollResultsDTO;
 import com.pablorodriguesb.pollhub.exception.BadRequestException;
 import com.pablorodriguesb.pollhub.exception.ResourceNotFoundException;
@@ -100,5 +102,24 @@ public class PollService {
         pollResultsDTO.setPollId(poll.getId());
         pollResultsDTO.setResults(results);
         return pollResultsDTO;
+    }
+
+    public PollResponseDTO convertToPollDTO(Poll poll) {
+        PollResponseDTO dto = new PollResponseDTO();
+        dto.setId(poll.getId());
+        dto.setTitle(poll.getTitle());
+        dto.setDescription(poll.getDescription());
+        dto.setPublic(poll.getIsPublic());
+        dto.setCreatedAt(poll.getCreatedAt());
+        dto.setCreatedBy(poll.getCreatedBy().getUsername());
+        List<OptionDTO> optionDTOs = poll.getOptions().stream()
+                .map(option -> {
+                    OptionDTO optionDTO = new OptionDTO();
+                    optionDTO.setId(option.getId());
+                    optionDTO.setText(option.getText());
+                    return optionDTO;
+                }).collect(Collectors.toList());
+        dto.setOptions(optionDTOs);
+        return dto;
     }
 }
