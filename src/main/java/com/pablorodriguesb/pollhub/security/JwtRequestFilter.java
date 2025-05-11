@@ -36,9 +36,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String username = null;
         String jwtToken = null;
 
+        System.out.println("Authorization Header: " + request.getHeader("Authorization"));
+
         // o token JWT tem que estar em formato Bearer <token>
         if (requestTokenHeader != null
-                && requestTokenHeader.startsWith("Bearer")) {
+                && requestTokenHeader.startsWith("Bearer ")) {
 
             jwtToken = requestTokenHeader.substring(7);
             try {
