@@ -2,6 +2,7 @@ package com.pablorodriguesb.pollhub.controller;
 
 import com.pablorodriguesb.pollhub.dto.PollResponseDTO;
 import com.pablorodriguesb.pollhub.dto.UserDTO;
+import com.pablorodriguesb.pollhub.dto.UserResponseDTO;
 import com.pablorodriguesb.pollhub.dto.VoteResponseDTO;
 import com.pablorodriguesb.pollhub.model.Poll;
 import com.pablorodriguesb.pollhub.model.User;
@@ -56,10 +57,10 @@ public class UserController {
 
     // endpoint para cadastro de novo usuario.
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserResponseDTO> registerUser(@Valid @RequestBody UserDTO userDTO) {
         User user = convertToEntity(userDTO);
         User createdUser = userService.registerUser(user);
-        return ResponseEntity.ok(convertToDTO(createdUser));
+        return ResponseEntity.ok(convertToResponseDTO(createdUser));
     }
 
     // endpoint para buscar usuario por username.
@@ -97,5 +98,13 @@ public class UserController {
         return ResponseEntity.ok(polls.stream()
                 .map(pollService::convertToPollDTO)
                 .collect(Collectors.toList()));
+    }
+
+    // metodo auxiliar para conversao de User para UserResponseDTO
+    private UserResponseDTO convertToResponseDTO(User user) {
+        UserResponseDTO dto = new UserResponseDTO();
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        return dto;
     }
 }

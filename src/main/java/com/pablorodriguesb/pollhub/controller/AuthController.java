@@ -2,6 +2,7 @@ package com.pablorodriguesb.pollhub.controller;
 
 
 import com.pablorodriguesb.pollhub.dto.UserDTO;
+import com.pablorodriguesb.pollhub.dto.UserResponseDTO;
 import com.pablorodriguesb.pollhub.model.User;
 import com.pablorodriguesb.pollhub.security.JwtTokenUtil;
 import com.pablorodriguesb.pollhub.service.CustomUserDetailsService;
@@ -36,9 +37,9 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody UserDTO userDTO) {
-        userService.registerUser(userDTO.toEntity());
-        return ResponseEntity.ok("Usuário registrado com sucesso");
+    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserDTO userDTO) {
+        User createdUser = userService.registerUser(userDTO.toEntity());
+        return ResponseEntity.ok(convertToResponseDTO(createdUser));
     }
 
     @PostMapping("/login")
@@ -71,5 +72,13 @@ public class AuthController {
         public String getToken() {
             return token;
         }
+    }
+
+    // conversao DTO
+    private UserResponseDTO convertToResponseDTO(User user) {
+        UserResponseDTO dto = new UserResponseDTO();
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        return dto;
     }
 }
