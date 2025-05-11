@@ -32,20 +32,28 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // libera endpoints da auth
-                .requestMatchers(HttpMethod.GET,
-                        "/api/polls",
-                        "/api/polls/public",
-                        "/api/polls/*",
-                        "/api/polls/*/results"
+                        // libera endpoints publicos
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/api/users/register",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
                         ).permitAll()
-                .anyRequest().authenticated()
+                        // libera gets publicos
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/polls",
+                                "/api/polls/public",
+                                "/api/polls/*",
+                                "/api/polls/*/results"
+                        ).permitAll()
+                        // todas as outras requisicoes exigem autenticação
+                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 )
                 .sessionManagement(sess -> sess
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);

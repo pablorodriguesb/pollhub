@@ -36,12 +36,6 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserDTO userDTO) {
-        User createdUser = userService.registerUser(userDTO.toEntity());
-        return ResponseEntity.ok(convertToResponseDTO(createdUser));
-    }
-
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody UserDTO userDTO) throws
             Exception {
