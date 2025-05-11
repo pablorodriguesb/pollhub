@@ -1,9 +1,12 @@
 package com.pablorodriguesb.pollhub.controller;
 
+import com.pablorodriguesb.pollhub.dto.PollResponseDTO;
 import com.pablorodriguesb.pollhub.dto.UserDTO;
 import com.pablorodriguesb.pollhub.dto.VoteResponseDTO;
+import com.pablorodriguesb.pollhub.model.Poll;
 import com.pablorodriguesb.pollhub.model.User;
 import com.pablorodriguesb.pollhub.model.Vote;
+import com.pablorodriguesb.pollhub.service.PollService;
 import com.pablorodriguesb.pollhub.service.UserService;
 import com.pablorodriguesb.pollhub.service.VoteService;
 import jakarta.validation.Valid;
@@ -15,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -22,11 +26,14 @@ public class UserController {
 
     private final UserService userService;
     private final VoteService voteService;
+    private final PollService pollService;
 
     @Autowired
-    public UserController(UserService userService, VoteService voteService) {
+    public UserController(UserService userService, VoteService voteService,
+                          PollService pollService) {
         this.userService = userService;
         this.voteService = voteService;
+        this.pollService = pollService;
     }
 
     // metodo auxiliar para converter user para dto
@@ -75,5 +82,20 @@ public class UserController {
         List<Vote> votes = voteService.getVotesByUser(currentUser);
         List<VoteResponseDTO> dtos = voteService.convertVotesToDTOs(votes);
         return ResponseEntity.ok(dtos);
+    }
+
+    @GetMapping("/me/polls")
+    public ResponseEntity<List<PollResponseDTO>> getMyPolls(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new AccessDeniedException("Acesso negado: usuário não autenticado");
+        }
+        User currentUser = userService.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Usuário não encontrado"));
+        List<Poll> polls = pollService.getPollsByUserWithDetails(currentUser);
+        return ResponseEntity.ok(polls.stream()
+                .map(pollService::convertToPollDTO)
+                .collect(Collectors.toList()));
     }
 }
