@@ -1,9 +1,14 @@
 package com.pablorodriguesb.pollhub.service;
 
 import com.pablorodriguesb.pollhub.dto.VoteResponseDTO;
+import com.pablorodriguesb.pollhub.exception.BadRequestException;
+import com.pablorodriguesb.pollhub.exception.ResourceNotFoundException;
+import com.pablorodriguesb.pollhub.model.Option;
 import com.pablorodriguesb.pollhub.model.Poll;
 import com.pablorodriguesb.pollhub.model.User;
 import com.pablorodriguesb.pollhub.model.Vote;
+import com.pablorodriguesb.pollhub.repository.OptionRepository;
+import com.pablorodriguesb.pollhub.repository.PollRepository;
 import com.pablorodriguesb.pollhub.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,26 +16,44 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class VoteService {
 
     private final VoteRepository voteRepository;
+    private final OptionRepository optionRepository;
+    private final PollRepository pollRepository;
 
     @Autowired
-    public VoteService(VoteRepository voteRepository) {
+    public VoteService(VoteRepository voteRepository, OptionRepository optionRepository,
+                       PollRepository pollRepository) {
         this.voteRepository = voteRepository;
+        this.optionRepository = optionRepository;
+        this.pollRepository = pollRepository;
     }
 
     // registra o voto de um usuario em uma enquete
-    public Vote vote(User user, Poll poll, Vote vote)  {
-        Optional<Vote> existingVote = voteRepository.findByUserAndPoll(user, poll);
-        if (existingVote.isPresent()) {
-            throw new IllegalStateException("Usuário já votou nessa enquete.");
+    public Vote vote(Long pollId, Long optionId, User user) {
+        Poll poll = pollRepository.findById(pollId)
+                .orElseThrow(() -> new ResourceNotFoundException("Enquete" +
+                        "não encontrada"));
+
+        // Verifica se já votou
+        if (voteRepository.existsByPollAndUser(poll, user)) {
+            throw new BadRequestException("Você já votou nesta enquete");
         }
+
+        Option option = optionRepository.findById(optionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Opção não encontrada"));
+
+        // cria e salva o voto
+        Vote vote = new Vote();
+        vote.setUser(user);
+        vote.setPoll(poll);
+        vote.setOption(option);
         vote.setVotedAt(LocalDateTime.now());
+
         return voteRepository.save(vote);
     }
 
