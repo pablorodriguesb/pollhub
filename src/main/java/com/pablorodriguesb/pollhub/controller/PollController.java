@@ -63,7 +63,7 @@ public class PollController {
 
         // salvando a enquete
         Poll savedPoll = pollService.createPoll(poll, creator);
-        return ResponseEntity.ok(convertToDTO(savedPoll));
+        return ResponseEntity.ok(pollService.convertToPollDTO(savedPoll));
     }
 
     // lista todas enquetes publicas.
@@ -72,24 +72,7 @@ public class PollController {
         List<Poll> polls = pollService.getPublicPolls();
         return ResponseEntity.ok(
                 polls.stream()
-                        .map(this::convertToDTO)
-                        .collect(Collectors.toList())
-        );
-    }
-
-
-    // listar enquetes do usuario autenticado
-    @GetMapping("/users/me/polls")
-    public ResponseEntity<List<PollResponseDTO>> getMyPolls(
-            @AuthenticationPrincipal UserDetails userDetails) {
-        User currentUser = userService.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-
-        List<Poll> polls = pollService.getPollsByUserWithDetails(currentUser);
-
-        return ResponseEntity.ok(
-                polls.stream()
-                        .map(this::convertToDTO)  // metodo auxiliar
+                        .map(pollService::convertToPollDTO)
                         .collect(Collectors.toList())
         );
     }
@@ -105,7 +88,7 @@ public class PollController {
 
         return ResponseEntity.ok(
                 polls.stream()
-                        .map(this::convertToDTO)  // metodo auxiliar
+                        .map(pollService::convertToPollDTO)  // metodo auxiliar
                         .collect(Collectors.toList())
         );
     }
@@ -134,7 +117,7 @@ public class PollController {
         }
 
         // converter para dto usando o metodo auxiliar
-        return ResponseEntity.ok(convertToDTO(poll));
+        return ResponseEntity.ok(pollService.convertToPollDTO(poll));
     }
 
     // votar em uma enquete.
@@ -178,24 +161,5 @@ public class PollController {
         }
         PollResultsDTO results = pollService.getResults(id);
         return ResponseEntity.ok(results);
-    }
-
-    private PollResponseDTO convertToDTO(Poll poll) {
-        PollResponseDTO dto = new PollResponseDTO();
-        dto.setId(poll.getId());
-        dto.setTitle(poll.getTitle());
-        dto.setDescription(poll.getDescription());
-        dto.setPublic(poll.getIsPublic());
-        dto.setCreatedAt(poll.getCreatedAt());
-        dto.setCreatedBy(poll.getCreatedBy().getUsername());
-        List<OptionDTO> optionDTOs = poll.getOptions().stream()
-                .map(option -> {
-                    OptionDTO optionDTO = new OptionDTO();
-                    optionDTO.setId(option.getId());
-                    optionDTO.setText(option.getText());
-                    return optionDTO;
-                }).collect(Collectors.toList());
-        dto.setOptions(optionDTOs);
-        return dto;
     }
 }
