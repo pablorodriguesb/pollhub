@@ -28,6 +28,8 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ShareIcon from '@mui/icons-material/Share';
 import api from '../api/client';
+import { Link } from 'react-router-dom';
+
 
 export default function PollCard({ poll, onVote, showResults, isOwner, onToggleResults }) {
   const [selectedOption, setSelectedOption] = useState('');
@@ -134,7 +136,14 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
           
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
             <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-              Por {poll.createdBy || 'Anônimo'}
+            Por{' '}
+  {poll.createdBy ? (
+    <Link to={`/usuario/${poll.createdBy}`}>
+      {poll.createdBy}
+    </Link>
+  ) : (
+    'Anônimo'
+  )}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               • {formatDate(poll.createdAt || new Date())}

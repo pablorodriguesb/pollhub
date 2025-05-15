@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import UserProfile from './pages/UserProfile';
 
 const AppRoutes = () => {
   return (
@@ -12,12 +13,16 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        
+
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/" element={<Navigate to="/dashboard" />} />
         </Route>
-        
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="/usuario/:username" element={<UserProfile />} />
+        </Route>
+
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </AuthProvider>

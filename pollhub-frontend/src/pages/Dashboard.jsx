@@ -32,7 +32,9 @@ import PersonIcon from '@mui/icons-material/Person';
 import api from '../api/client';
 import PollCard from '../components/PollCard';
 import PollCreationDialog from '../components/PollCreationDialog';
-import { useAuth } from '../contexts/AuthContext'; 
+import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
+
 
 const drawerWidth = 240;
 
@@ -41,7 +43,7 @@ export default function Dashboard() {
   const { user, logout } = useAuth();
   // Log para debug - verificar a estrutura do objeto user
   console.log('User object:', user);
-  
+
   // Estado para gerenciar UI e dados
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -72,32 +74,32 @@ export default function Dashboard() {
         api.get('/api/users/me/polls'),
         api.get('/api/polls')
       ]);
-  
+
       // Processa os dados
       const sortByDate = (a, b) => new Date(b.createdAt) - new Date(a.createdAt);
       setUserPolls(userPollsRes.data.sort(sortByDate));
       setAllPolls(allPollsRes.data.sort(sortByDate));
-  
+
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
-      
+
       // Se receber erro 401 (não autorizado), redirecionar para login
       if (error.response?.status === 401) {
         logout();
         navigate('/login');
       }
-      
+
       // Trata erros específicos
       setSnackbar({
         open: true,
         message: error.response?.data?.message || 'Erro ao carregar dados',
         severity: 'error'
-      });      
+      });
     } finally {
       setIsLoading(false);
     }
   };
-  
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -127,7 +129,7 @@ export default function Dashboard() {
         navigate('/login');
         return;
       }
-      
+
       const errorMessage = error.response?.data?.message ||
         error.response?.data?.error ||
         'Erro ao criar enquete';
@@ -207,7 +209,7 @@ export default function Dashboard() {
         </Typography>
       </Box>
       <Divider sx={{ backgroundColor: '#2c3149' }} />
-      
+
       {/* Perfil do usuário */}
       <Box sx={{ py: 1 }}>
         <ListItem disablePadding>
@@ -215,14 +217,14 @@ export default function Dashboard() {
             <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
               <PersonIcon />
             </ListItemIcon>
-            <ListItemText 
-              primary={user ? (user.username || user.name || user.email || 'Usuário') : 'Usuário'} 
+            <ListItemText
+              primary={user ? (user.username || user.name || user.email || 'Usuário') : 'Usuário'}
               primaryTypographyProps={{ sx: { color: 'white' } }}
             />
           </ListItemButton>
         </ListItem>
       </Box>
-      
+
       {/* Menu principal */}
       <List>
         <ListItem disablePadding>
@@ -230,8 +232,8 @@ export default function Dashboard() {
             <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
               <AddCircleIcon />
             </ListItemIcon>
-            <ListItemText 
-              primary="Nova Enquete" 
+            <ListItemText
+              primary="Nova Enquete"
               primaryTypographyProps={{ sx: { color: 'white' } }}
             />
           </ListItemButton>
@@ -241,8 +243,8 @@ export default function Dashboard() {
             <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
               <PollIcon />
             </ListItemIcon>
-            <ListItemText 
-              primary="Minhas Enquetes" 
+            <ListItemText
+              primary="Minhas Enquetes"
               primaryTypographyProps={{ sx: { color: 'white' } }}
             />
           </ListItemButton>
@@ -252,14 +254,14 @@ export default function Dashboard() {
             <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
               <HowToVoteIcon />
             </ListItemIcon>
-            <ListItemText 
-              primary="Todas Enquetes" 
+            <ListItemText
+              primary="Todas Enquetes"
               primaryTypographyProps={{ sx: { color: 'white' } }}
             />
           </ListItemButton>
         </ListItem>
       </List>
-      
+
       {/* Botão de sair */}
       <Box sx={{ mt: 2 }}>
         <Divider sx={{ backgroundColor: '#2c3149' }} />
@@ -268,8 +270,8 @@ export default function Dashboard() {
             <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
               <LogoutIcon />
             </ListItemIcon>
-            <ListItemText 
-              primary="Sair" 
+            <ListItemText
+              primary="Sair"
               primaryTypographyProps={{ sx: { color: 'white' } }}
             />
           </ListItemButton>
@@ -329,9 +331,9 @@ export default function Dashboard() {
           }}
           sx={{
             display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
-              width: drawerWidth, 
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
               backgroundColor: '#1a1e2b',
               borderRight: '1px solid #2c3149'
             },
@@ -344,9 +346,9 @@ export default function Dashboard() {
           variant="permanent"
           sx={{
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
-              width: drawerWidth, 
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
               backgroundColor: '#1a1e2b',
               borderRight: '1px solid #2c3149'
             },
@@ -403,6 +405,7 @@ export default function Dashboard() {
                     isOwner={user && poll.createdBy === user.username}
                     onToggleResults={handleToggleResults}
                   />
+
                 </Grid>
               ))}
             </Grid>
