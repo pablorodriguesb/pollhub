@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import UserProfile from './pages/UserProfile';
 import AllPolls from './pages/AllPolls';
+import UserVotes from './pages/UserVotes';
 
 const AppRoutes = () => {
   return (
@@ -20,8 +21,10 @@ const AppRoutes = () => {
           <Route path="/" element={<Navigate to="/dashboard" />} />
         </Route>
 
+        <Route path="/my-votes" element={<UserVotes />} />
+
         <Route element={<ProtectedRoute />}>
-          <Route path="/usuario/:username" element={<UserProfile />} />
+          <Route path="/users/:username" element={<UserProfile />} />
         </Route>
 
         <Route element={<ProtectedRoute />}>

@@ -24,7 +24,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import HowToVoteIcon from '@mui/icons-material/HowToVote';
+
 import PollIcon from '@mui/icons-material/Poll';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -33,7 +33,9 @@ import api from '../api/client';
 import PollCard from '../components/PollCard';
 import PollCreationDialog from '../components/PollCreationDialog';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'; 4
+import HowToVoteIcon from '@mui/icons-material/HowToVote';
+
 
 
 const drawerWidth = 240;
@@ -166,6 +168,7 @@ export default function Dashboard() {
         error.response?.status === 400 &&
         error.response.data.message === "Você já votou nesta enquete"
       ) {
+        handleToggleResults(pollId, true);
         setSnackbar({
           open: true,
           message: 'Você já votou nesta enquete',
@@ -249,6 +252,23 @@ export default function Dashboard() {
             />
           </ListItemButton>
         </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton
+            component={Link}
+            to="/my-votes"
+            sx={{ py: 1.5 }}
+          >
+            <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
+              <HowToVoteIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="Meus Votos"
+              primaryTypographyProps={{ sx: { color: 'white' } }}
+            />
+          </ListItemButton>
+        </ListItem>
+
         <ListItem disablePadding>
           <ListItemButton
             component={Link}

@@ -157,7 +157,7 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
             <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
               Por{' '}
               {poll.createdBy ? (
-                <Link to={`/usuario/${poll.createdBy}`}>
+                <Link to={`/users/${poll.createdBy}`}>
                   {poll.createdBy}
                 </Link>
               ) : (

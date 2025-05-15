@@ -19,6 +19,12 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Função para buscar votos do usuário logado
+api.getUserVotes = async () => {
+  const response = await api.get('/api/users/me/votes');
+  return response.data;
+};
+
 // Interceptor para lidar com erros de resposta
 api.interceptors.response.use(
   (response) => response,
