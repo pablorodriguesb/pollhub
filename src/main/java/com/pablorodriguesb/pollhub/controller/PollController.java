@@ -46,7 +46,7 @@ public class PollController {
         Poll poll = new Poll();
         poll.setTitle(pollDTO.getTitle());
         poll.setDescription(pollDTO.getDescription());
-        poll.setIsPublic(pollDTO.isPublic());
+        poll.setIsPublic(pollDTO.getPublicFlag());
         poll.setCreatedBy(creator);
         poll.setCreatedAt(LocalDateTime.now());
 

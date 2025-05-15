@@ -44,7 +44,7 @@ public class PollService {
 
     // retorna as enquetes públicas.
     public List<Poll> getPublicPolls() {
-        return pollRepository.findPublicPollsWithUser();
+        return pollRepository.findByIsPublicTrue();
     }
 
     // retorna todas as enquetes especificas criadas por um usuario.
@@ -109,7 +109,7 @@ public class PollService {
         dto.setId(poll.getId());
         dto.setTitle(poll.getTitle());
         dto.setDescription(poll.getDescription());
-        dto.setPublic(poll.getIsPublic());
+        dto.setPublicFlag(poll.getIsPublic());
         dto.setCreatedAt(poll.getCreatedAt());
         dto.setCreatedBy(poll.getCreatedBy().getUsername());
 

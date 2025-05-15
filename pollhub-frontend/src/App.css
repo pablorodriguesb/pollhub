@@ -3,6 +3,8 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  background: #181c2f !important;
+  min-height: 100vh;
 }
 
 .logo {
@@ -18,7 +20,7 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 .body-bg {
-  background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+  background: #181c2f !important;
   min-height: 100vh;
   margin: 0;
 }

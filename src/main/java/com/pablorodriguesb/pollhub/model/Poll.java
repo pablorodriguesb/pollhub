@@ -35,7 +35,7 @@ public class Poll {
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
 
-    @Column(nullable = false)
+    @Column(name = "is_public", nullable = false)
     private Boolean isPublic;
 
     @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, orphanRemoval = true)

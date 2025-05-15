@@ -250,9 +250,13 @@ export default function Dashboard() {
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
-          <ListItemButton sx={{ py: 1.5 }}>
+          <ListItemButton
+            component={Link}
+            to="/polls"
+            sx={{ py: 1.5 }}
+          >
             <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
-              <HowToVoteIcon />
+              <PollIcon />
             </ListItemIcon>
             <ListItemText
               primary="Todas Enquetes"
@@ -262,20 +266,22 @@ export default function Dashboard() {
         </ListItem>
       </List>
 
-      {/* Botão de sair */}
+      {/* Botão de sair - FORA do <List> */}
       <Box sx={{ mt: 2 }}>
         <Divider sx={{ backgroundColor: '#2c3149' }} />
-        <ListItem disablePadding>
-          <ListItemButton onClick={handleLogout} sx={{ py: 1.5 }}>
-            <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
-              <LogoutIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary="Sair"
-              primaryTypographyProps={{ sx: { color: 'white' } }}
-            />
-          </ListItemButton>
-        </ListItem>
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton onClick={handleLogout} sx={{ py: 1.5 }}>
+              <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
+                <LogoutIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Sair"
+                primaryTypographyProps={{ sx: { color: 'white' } }}
+              />
+            </ListItemButton>
+          </ListItem>
+        </List>
       </Box>
     </Box>
   );

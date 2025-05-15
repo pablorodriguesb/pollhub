@@ -49,26 +49,58 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const response = await api.post('/api/auth/login', credentials);
-      const { token, user, username } = response.data;
-
+      
+      // 1. Extração segura dos dados da resposta
+      const { token, user } = response.data;
+  
+      // Validação básica dos dados recebidos
+      if (!token) {
+        throw new Error('Token não encontrado na resposta do servidor');
+      }
+  
+      // 2. Armazenamento do token
       localStorage.setItem('token', token);
       
-      // ✅ Atualiza headers do Axios imediatamente
+      // 3. Configuração imediata do header Axios
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-      // ✅ Estrutura segura para dados do usuário
-      const userPayload = user || { username: username || credentials.username };
+  
+      // 4. Tratamento dos dados do usuário
+      let userPayload = { username: credentials.username }; // Fallback básico
+      
+      if (user) {
+        // Garante que username existe mesmo se o objeto user vier incompleto
+        userPayload = { 
+          username: user.username || credentials.username,
+          ...user // Preserva outras propriedades
+        };
+      }
+  
       localStorage.setItem('user', JSON.stringify(userPayload));
       setUser(userPayload);
       
       setIsAuthenticated(true);
       return true;
-
+  
     } catch (error) {
       console.error('Erro no login:', error);
+      
+      // Limpeza mais agressiva em caso de erro
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      api.defaults.headers.common['Authorization'] = '';
+      
+      // Feedback mais específico para o usuário
+      if (error.response) {
+        if (error.response.status === 401) {
+          throw new Error('Credenciais inválidas');
+        }
+        throw new Error(`Erro do servidor: ${error.response.statusText}`);
+      }
+      
       return false;
     }
   };
+  
 
   const logout = () => {
     localStorage.removeItem('token');

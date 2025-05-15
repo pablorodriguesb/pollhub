@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import UserProfile from './pages/UserProfile';
+import AllPolls from './pages/AllPolls';
 
 const AppRoutes = () => {
   return (
@@ -23,6 +24,9 @@ const AppRoutes = () => {
           <Route path="/usuario/:username" element={<UserProfile />} />
         </Route>
 
+        <Route element={<ProtectedRoute />}>
+          <Route path="/polls" element={<AllPolls />} />
+        </Route>
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </AuthProvider>

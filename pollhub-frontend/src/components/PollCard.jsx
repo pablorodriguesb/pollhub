@@ -35,8 +35,9 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
   const [selectedOption, setSelectedOption] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [pollsWithResults, setPollsWithResults] = useState([]);
   const menuOpen = Boolean(anchorEl);
-  
+
   // Calcular total de votos
   const totalVotes = poll.options.reduce((sum, option) => sum + (option.voteCount || 0), 0);
 
@@ -44,13 +45,17 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
     setSelectedOption(event.target.value);
   };
 
-  const handleVote = () => {
-    if (selectedOption) {
-      onVote(poll.id, selectedOption); 
-      onToggleResults && onToggleResults(poll.id, true);
+  const handleVote = async () => {
+    if (!selectedOption || !onVote) return;
+
+    try {
+      await onVote(poll.id, selectedOption);
+      setSelectedOption(''); // ✅ Reset para string vazia
+    } catch (error) {
+      console.error('Erro ao votar:', error);
     }
   };
-  
+
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -78,11 +83,20 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
     }
   };
 
+  // Função para alternar a exibição dos resultados
+  const handleToggleResults = (pollId, show) => {
+    if (show) {
+      setPollsWithResults(prev => [...prev, pollId]);
+    } else {
+      setPollsWithResults(prev => prev.filter(id => id !== pollId));
+    }
+  };
+
   const handleShareClick = () => {
     handleMenuClose();
     // Criar um URL para compartilhar
     const shareUrl = `${window.location.origin}/poll/${poll.id}`;
-    
+
     // Tentar usar a API de compartilhamento se disponível
     if (navigator.share) {
       navigator.share({
@@ -105,12 +119,16 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
 
   return (
     <>
-      <Card 
-        sx={{ 
-          height: '100%', 
-          display: 'flex', 
+      <Card
+        sx={{
+          height: '100%',
+          display: 'flex',
           flexDirection: 'column',
+          background: "#23273a",
+          color: "white",
+          borderRadius: 3,
           boxShadow: 3,
+          border: "none",
           transition: 'transform 0.2s, box-shadow 0.2s',
           '&:hover': {
             transform: 'translateY(-4px)',
@@ -118,14 +136,15 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
           },
         }}
       >
+
         <CardContent sx={{ flexGrow: 1 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
             <Typography variant="h6" component="div" gutterBottom sx={{ fontWeight: 600 }}>
               {poll.title}
             </Typography>
             {isOwner && (
-              <IconButton 
-                aria-label="configurações" 
+              <IconButton
+                aria-label="configurações"
                 size="small"
                 onClick={handleMenuClick}
               >
@@ -133,33 +152,33 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
               </IconButton>
             )}
           </Box>
-          
+
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
             <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-            Por{' '}
-  {poll.createdBy ? (
-    <Link to={`/usuario/${poll.createdBy}`}>
-      {poll.createdBy}
-    </Link>
-  ) : (
-    'Anônimo'
-  )}
+              Por{' '}
+              {poll.createdBy ? (
+                <Link to={`/usuario/${poll.createdBy}`}>
+                  {poll.createdBy}
+                </Link>
+              ) : (
+                'Anônimo'
+              )}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               • {formatDate(poll.createdAt || new Date())}
             </Typography>
           </Box>
-          
-          <Chip 
-            label={`${totalVotes} ${totalVotes === 1 ? 'voto' : 'votos'}`} 
-            size="small" 
-            color="primary" 
-            variant="outlined" 
-            sx={{ mb: 2 }} 
+
+          <Chip
+            label={`${totalVotes} ${totalVotes === 1 ? 'voto' : 'votos'}`}
+            size="small"
+            color="primary"
+            variant="outlined"
+            sx={{ mb: 2 }}
           />
-          
+
           <Divider sx={{ my: 1 }} />
-          
+
           {!showResults ? (
             <RadioGroup
               name={`poll-${poll.id}`}
@@ -179,10 +198,10 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
           ) : (
             <>
               {poll.options.map((option) => {
-                const votePercentage = totalVotes > 0 
-                  ? Math.round((option.voteCount / totalVotes) * 100) 
+                const votePercentage = totalVotes > 0
+                  ? Math.round((option.voteCount / totalVotes) * 100)
                   : 0;
-                  
+
                 return (
                   <Box key={option.id} sx={{ mb: 1 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
@@ -191,10 +210,10 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
                         {votePercentage}%
                       </Typography>
                     </Box>
-                    <LinearProgress 
-                      variant="determinate" 
-                      value={votePercentage} 
-                      sx={{ height: 8, borderRadius: 1 }} 
+                    <LinearProgress
+                      variant="determinate"
+                      value={votePercentage}
+                      sx={{ height: 8, borderRadius: 1 }}
                     />
                     <Typography variant="caption" color="text.secondary">
                       {option.voteCount || 0} {option.voteCount === 1 ? 'voto' : 'votos'}
@@ -205,12 +224,12 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
             </>
           )}
         </CardContent>
-        
+
         <CardActions sx={{ p: 2, pt: 0 }}>
           {!showResults ? (
-            <Button 
-              startIcon={<HowToVoteIcon />} 
-              variant="contained" 
+            <Button
+              startIcon={<HowToVoteIcon />}
+              variant="contained"
               fullWidth
               disabled={!selectedOption}
               onClick={handleVote}
@@ -218,9 +237,9 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
               Votar
             </Button>
           ) : (
-            <Button 
-              startIcon={<BarChartIcon />} 
-              variant="outlined" 
+            <Button
+              startIcon={<BarChartIcon />}
+              variant="outlined"
               fullWidth
               onClick={() => onToggleResults && onToggleResults(poll.id, false)}
             >
@@ -229,7 +248,7 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
           )}
         </CardActions>
       </Card>
-      
+
       {/* Menu de opções */}
       <Menu
         anchorEl={anchorEl}
@@ -245,7 +264,7 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
           Excluir
         </MenuItem>
       </Menu>
-      
+
       {/* Dialog de confirmação de exclusão */}
       <Dialog
         open={confirmDelete}

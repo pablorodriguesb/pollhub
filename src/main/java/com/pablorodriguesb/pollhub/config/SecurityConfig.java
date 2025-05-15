@@ -1,5 +1,8 @@
 package com.pablorodriguesb.pollhub.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pablorodriguesb.pollhub.security.JwtAuthenticationEntryPoint;
 import com.pablorodriguesb.pollhub.security.JwtRequestFilter;
 import com.pablorodriguesb.pollhub.service.CustomUserDetailsService;
@@ -56,7 +59,8 @@ public class SecurityConfig {
                                 "/api/polls/*",
                                 "/api/polls/*/results"
                         ).permitAll()
-                        // todas as outras requisicoes exigem autenticação
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/users/me/polls").authenticated()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
