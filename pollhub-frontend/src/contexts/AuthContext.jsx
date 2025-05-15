@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/client';
 
 const AuthContext = createContext(null);
@@ -8,95 +8,72 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Verificar se o usuário já está autenticado (token no localStorage)
     const checkAuthStatus = async () => {
       const token = localStorage.getItem('token');
       const userData = localStorage.getItem('user');
-      
-      if (token && userData) {
-        try {
-          // Configurar o token para todas as requisições
-          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          
-          // Opcional: Validar o token com o servidor
-          // await api.get('/api/users/me');
-          
-          setUser(JSON.parse(userData));
-          setIsAuthenticated(true);
-        } catch (error) {
-          console.error('Token inválido ou expirado:', error);
-          // Limpar dados de autenticação inválidos
+
+      if (!token || !userData) {
+        setLoading(false);
+        setIsAuthenticated(false);
+        return;
+      }
+
+      try {
+        // ✅ Garante que o header é atualizado ANTES da requisição
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        
+        await api.get('/api/users/me/polls');
+        
+        setUser(JSON.parse(userData));
+        setIsAuthenticated(true);
+
+      } catch (error) {
+        console.error('Erro na verificação de autenticação:', error);
+        if (error.response?.status === 401) {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
         }
+        setIsAuthenticated(false);
       }
       
       setLoading(false);
     };
-    
+
     checkAuthStatus();
   }, []);
 
-  const login = async (username, password) => {
+  const login = async (credentials) => {
     try {
-      const response = await api.post('/api/auth/login', {
-        username,
-        password
-      });
-      
-      const { token } = response.data;
-      const userData = { username };
-      
-      // Salvar token e dados do usuário
+      const response = await api.post('/api/auth/login', credentials);
+      const { token, user, username } = response.data;
+
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
       
-      // Configurar token para todas as requisições futuras
+      // ✅ Atualiza headers do Axios imediatamente
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      // ✅ Estrutura segura para dados do usuário
+      const userPayload = user || { username: username || credentials.username };
+      localStorage.setItem('user', JSON.stringify(userPayload));
+      setUser(userPayload);
       
-      setUser(userData);
       setIsAuthenticated(true);
-      
-      return { success: true };
+      return true;
+
     } catch (error) {
       console.error('Erro no login:', error);
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Erro ao fazer login' 
-      };
-    }
-  };
-
-  const register = async (username, email, password) => {
-    try {
-      await api.post('/api/users/register', {
-        username,
-        email,
-        password
-      });
-      
-      return { success: true };
-    } catch (error) {
-      console.error('Erro no registro:', error);
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Erro ao registrar' 
-      };
+      return false;
     }
   };
 
   const logout = () => {
-    // Remover token e dados do usuário
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    
-    // Limpar cabeçalho de autorização
     delete api.defaults.headers.common['Authorization'];
-    
     setUser(null);
     setIsAuthenticated(false);
   };
@@ -106,13 +83,8 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated,
     loading,
     login,
-    register,
     logout
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

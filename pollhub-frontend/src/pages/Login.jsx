@@ -12,9 +12,9 @@ import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 
 import { useNavigate } from 'react-router-dom';
-import api from '../api/client';
 import { useState } from 'react';
 import { Alert, Snackbar } from '@mui/material';
+import { useAuth } from '../contexts/AuthContext';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -58,8 +58,10 @@ const LoginContainer = styled(Stack)(({ theme }) => ({
   },
 }));
 
-export default function Login(props) {
+export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
+  
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -121,28 +123,26 @@ export default function Login(props) {
     }
     
     try {
-      // Conectando com o endpoint de login da API
-      const response = await api.post('/api/auth/login', {
+      // Usando a função login do AuthContext
+      const success = await login({
         username: formData.username,
         password: formData.password
       });
       
-      // Salvar o token JWT no localStorage
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify({
-        username: formData.username
-      }));
-      
-      setSnackbar({
-        open: true,
-        message: 'Login realizado com sucesso!',
-        severity: 'success'
-      });
-      
-      // Redirecionamento para dashboard após login com sucesso
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1000);
+      if (success) {
+        setSnackbar({
+          open: true,
+          message: 'Login realizado com sucesso!',
+          severity: 'success'
+        });
+        
+        // Redirecionamento para dashboard após login com sucesso
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1000);
+      } else {
+        throw new Error('Falha no login');
+      }
       
     } catch (error) {
       console.error('Erro ao fazer login:', error);
@@ -252,5 +252,4 @@ export default function Login(props) {
       </LoginContainer>
     </>
   );
-  
 }

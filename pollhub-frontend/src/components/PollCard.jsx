@@ -29,15 +29,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ShareIcon from '@mui/icons-material/Share';
 import api from '../api/client';
 
-export default function PollCard({ poll, onVote, isOwner }) {
+export default function PollCard({ poll, onVote, showResults, isOwner, onToggleResults }) {
   const [selectedOption, setSelectedOption] = useState('');
-  const [showResults, setShowResults] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const menuOpen = Boolean(anchorEl);
   
   // Calcular total de votos
-  const totalVotes = poll.options.reduce((sum, option) => sum + (option.votes || 0), 0);
+  const totalVotes = poll.options.reduce((sum, option) => sum + (option.voteCount || 0), 0);
 
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
@@ -46,7 +45,7 @@ export default function PollCard({ poll, onVote, isOwner }) {
   const handleVote = () => {
     if (selectedOption) {
       onVote(poll.id, selectedOption); 
-      setShowResults(true);
+      onToggleResults && onToggleResults(poll.id, true);
     }
   };
   
@@ -67,11 +66,13 @@ export default function PollCard({ poll, onVote, isOwner }) {
     try {
       await api.delete(`/api/polls/${poll.id}`);
       setConfirmDelete(false);
-      // Recarregar a página ou notificar o componente pai
       window.location.reload();
     } catch (error) {
-      console.error('Erro ao excluir enquete:', error);
-      alert('Erro ao excluir enquete');
+      setSnackbar({
+        open: true,
+        message: 'Erro ao excluir enquete',
+        severity: 'error'
+      });
     }
   };
 
@@ -170,7 +171,7 @@ export default function PollCard({ poll, onVote, isOwner }) {
             <>
               {poll.options.map((option) => {
                 const votePercentage = totalVotes > 0 
-                  ? Math.round((option.votes / totalVotes) * 100) 
+                  ? Math.round((option.voteCount / totalVotes) * 100) 
                   : 0;
                   
                 return (
@@ -187,7 +188,7 @@ export default function PollCard({ poll, onVote, isOwner }) {
                       sx={{ height: 8, borderRadius: 1 }} 
                     />
                     <Typography variant="caption" color="text.secondary">
-                      {option.votes || 0} {option.votes === 1 ? 'voto' : 'votos'}
+                      {option.voteCount || 0} {option.voteCount === 1 ? 'voto' : 'votos'}
                     </Typography>
                   </Box>
                 );
@@ -212,7 +213,7 @@ export default function PollCard({ poll, onVote, isOwner }) {
               startIcon={<BarChartIcon />} 
               variant="outlined" 
               fullWidth
-              onClick={() => setShowResults(false)}
+              onClick={() => onToggleResults && onToggleResults(poll.id, false)}
             >
               Voltar para votação
             </Button>

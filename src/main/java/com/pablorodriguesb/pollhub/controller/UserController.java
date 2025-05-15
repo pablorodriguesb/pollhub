@@ -40,24 +40,6 @@ public class UserController {
         this.pollService = pollService;
     }
 
-    // metodo auxiliar para converter user para dto
-    private UserDTO convertToDTO(User user) {
-        UserDTO dto = new UserDTO();
-        dto.setUsername(user.getUsername());
-        dto.setEmail(user.getEmail());
-        // nao incluir a senha por seguranca
-        return dto;
-    }
-
-    // metodo auxiliar para converter dto para user
-    private User convertToEntity(UserDTO userDTO) {
-        User user = new User();
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword()); // a senha sera criptografada no service
-        return user;
-    }
-
     // endpoint para cadastro de novo usuario.
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@Valid @RequestBody UserDTO userDTO) {
@@ -131,5 +113,15 @@ public class UserController {
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
         return dto;
+    }
+
+
+    // metodo auxiliar para converter dto para user
+    private User convertToEntity(UserDTO userDTO) {
+        User user = new User();
+        user.setUsername(userDTO.getUsername());
+        user.setEmail(userDTO.getEmail());
+        user.setPassword(userDTO.getPassword()); // a senha sera criptografada no service
+        return user;
     }
 }

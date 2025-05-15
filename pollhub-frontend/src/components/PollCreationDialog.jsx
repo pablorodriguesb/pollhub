@@ -144,7 +144,7 @@ export default function PollCreationDialog({ open, onClose, onSubmit }) {
       options: options
         .filter(option => option.trim())
         .map(option => ({ text: option.trim() })),
-      duration: expirationDays // Confirme se o backend espera 'duration'
+      duration: expirationDays 
     };
 
     onSubmit(pollData);

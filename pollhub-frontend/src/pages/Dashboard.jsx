@@ -30,125 +30,107 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import api from '../api/client';
-import PollCard from './PollCard';
-import PollCreationDialog from './PollCreationDialog';
+import PollCard from '../components/PollCard';
+import PollCreationDialog from '../components/PollCreationDialog';
+import { useAuth } from '../contexts/AuthContext'; 
 
 const drawerWidth = 240;
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  // Log para debug - verificar a estrutura do objeto user
+  console.log('User object:', user);
+  
+  // Estado para gerenciar UI e dados
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [userPolls, setUserPolls] = useState([]);
   const [allPolls, setAllPolls] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [showResultsMap, setShowResultsMap] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'success'
   });
-  const [user, setUser] = useState({
-    username: ''
-  });
 
+  // Carregar dados quando o componente montar
   useEffect(() => {
-    // Verificar se o usuário está autenticado
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-    
-    if (userData) {
-      try {
-        setUser(JSON.parse(userData));
-      } catch (e) {
-        console.error('Erro ao processar dados do usuário:', e);
-        navigate('/login');
-        return;
-      }
-    }
-    
-    // Configurar o token de autenticação para todas as requisições
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    
-    // Carregar dados
     fetchData();
-  }, [navigate]);
+  }, []);
+
+  const handleToggleResults = (pollId, value) => {
+    setShowResultsMap(prev => ({ ...prev, [pollId]: value }));
+  };
 
   const fetchData = async () => {
-    setLoading(true);
+    setIsLoading(true);
     try {
-      // Busca paralela para melhor performance
+      // Faz chamadas autenticadas conforme os endpoints do swagger
       const [userPollsRes, allPollsRes] = await Promise.all([
         api.get('/api/users/me/polls'),
         api.get('/api/polls')
       ]);
   
-      // Ordenação por data de criação (mais recente primeiro)
-      const sortByDate = (a, b) => 
-        new Date(b.createdAt) - new Date(a.createdAt);
-  
+      // Processa os dados
+      const sortByDate = (a, b) => new Date(b.createdAt) - new Date(a.createdAt);
       setUserPolls(userPollsRes.data.sort(sortByDate));
       setAllPolls(allPollsRes.data.sort(sortByDate));
   
     } catch (error) {
-      console.error('Erro ao carregar dados:', error);
+      console.error('Erro ao buscar dados:', error);
       
-      // Tratamento melhorado de erro 401
+      // Se receber erro 401 (não autorizado), redirecionar para login
       if (error.response?.status === 401) {
-        localStorage.clear();
-        navigate('/login', { state: { from: location.pathname } });
-      } else {
-        setSnackbar({
-          open: true,
-          message: error.response?.data?.message || 'Erro ao carregar dados',
-          severity: 'error'
-        });
+        logout();
+        navigate('/login');
       }
+      
+      // Trata erros específicos
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Erro ao carregar dados',
+        severity: 'error'
+      });      
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
   
-
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
+  // Usa o método logout do contexto
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    logout();
     navigate('/login');
   };
 
   const handleCreatePoll = async (pollData) => {
     try {
-      const response = await api.post('/api/polls', {
-        ...pollData,
-        durationInDays: expirationDays // Campo esperado pelo DTO
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-  
-      // Atualização otimizada do estado local
+      const response = await api.post('/api/polls', pollData);
+
       setUserPolls(prev => [response.data, ...prev]);
       setAllPolls(prev => [response.data, ...prev]);
-  
+
       setSnackbar({
         open: true,
         message: 'Enquete criada com sucesso!',
         severity: 'success'
       });
-  
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 
-                         error.response?.data?.error || 
-                         'Erro ao criar enquete';
+      // Se receber erro 401 (não autorizado), redirecionar para login
+      if (error.response?.status === 401) {
+        logout();
+        navigate('/login');
+        return;
+      }
+      
+      const errorMessage = error.response?.data?.message ||
+        error.response?.data?.error ||
+        'Erro ao criar enquete';
       setSnackbar({
         open: true,
         message: errorMessage,
@@ -158,9 +140,8 @@ export default function Dashboard() {
       setDialogOpen(false);
     }
   };
-  
-  
 
+  // Lidar com o voto conforme o endpoint /api/polls/{id}/vote
   const handleVote = async (pollId, optionId) => {
     try {
       await api.post(`/api/polls/${pollId}/vote?optionId=${optionId}`);
@@ -171,14 +152,32 @@ export default function Dashboard() {
         severity: 'success'
       });
     } catch (error) {
-      setSnackbar({
-        open: true,
-        message: error.response?.data?.message || 'Erro ao votar.',
-        severity: 'error'
-      });
+      if (error.response?.status === 401) {
+        logout();
+        navigate('/login');
+        setSnackbar({
+          open: true,
+          message: 'Sessão expirada. Redirecionando para login...',
+          severity: 'error'
+        });
+      } else if (
+        error.response?.status === 400 &&
+        error.response.data.message === "Você já votou nesta enquete"
+      ) {
+        setSnackbar({
+          open: true,
+          message: 'Você já votou nesta enquete',
+          severity: 'warning'
+        });
+      } else {
+        setSnackbar({
+          open: true,
+          message: 'Erro ao processar seu voto',
+          severity: 'error'
+        });
+      }
     }
   };
-  
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -188,75 +187,99 @@ export default function Dashboard() {
   };
 
   const drawer = (
-    <Box sx={{ bgcolor: 'background.default', height: '100%' }}>
+    <Box sx={{ bgcolor: '#1a1e2b', color: 'white', height: '100%' }}>
+      {/* Logo e nome do app */}
       <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Box sx={{
           width: 48,
           height: 48,
           borderRadius: '50%',
-          background: '#1976d2',
+          background: '#2c3149',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           mr: 1
         }}>
-          <Typography variant="h4" sx={{ color: '#fff' }}>📊</Typography>
+          <Typography variant="h6" sx={{ color: '#fff' }}>📊</Typography>
         </Box>
-        <Typography variant="h6" noWrap component="div">
+        <Typography variant="h6" noWrap component="div" sx={{ color: 'white' }}>
           Poll App
         </Typography>
       </Box>
-      <Divider />
-      <List>
+      <Divider sx={{ backgroundColor: '#2c3149' }} />
+      
+      {/* Perfil do usuário */}
+      <Box sx={{ py: 1 }}>
         <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
+          <ListItemButton sx={{ py: 1.5 }}>
+            <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
               <PersonIcon />
             </ListItemIcon>
-            <ListItemText primary={user.username} />
+            <ListItemText 
+              primary={user ? (user.username || user.name || user.email || 'Usuário') : 'Usuário'} 
+              primaryTypographyProps={{ sx: { color: 'white' } }}
+            />
           </ListItemButton>
         </ListItem>
-        <Divider />
-        <ListItem disablePadding>
-          <ListItemButton onClick={() => setDialogOpen(true)}>
-            <ListItemIcon>
-              <AddCircleIcon />
-            </ListItemIcon>
-            <ListItemText primary="Nova Enquete" />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <PollIcon />
-            </ListItemIcon>
-            <ListItemText primary="Minhas Enquetes" />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <HowToVoteIcon />
-            </ListItemIcon>
-            <ListItemText primary="Todas Enquetes" />
-          </ListItemButton>
-        </ListItem>
-      </List>
-      <Divider />
+      </Box>
+      
+      {/* Menu principal */}
       <List>
         <ListItem disablePadding>
-          <ListItemButton onClick={handleLogout}>
-            <ListItemIcon>
-              <LogoutIcon />
+          <ListItemButton onClick={() => setDialogOpen(true)} sx={{ py: 1.5 }}>
+            <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
+              <AddCircleIcon />
             </ListItemIcon>
-            <ListItemText primary="Sair" />
+            <ListItemText 
+              primary="Nova Enquete" 
+              primaryTypographyProps={{ sx: { color: 'white' } }}
+            />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton sx={{ py: 1.5 }}>
+            <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
+              <PollIcon />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Minhas Enquetes" 
+              primaryTypographyProps={{ sx: { color: 'white' } }}
+            />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton sx={{ py: 1.5 }}>
+            <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
+              <HowToVoteIcon />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Todas Enquetes" 
+              primaryTypographyProps={{ sx: { color: 'white' } }}
+            />
           </ListItemButton>
         </ListItem>
       </List>
+      
+      {/* Botão de sair */}
+      <Box sx={{ mt: 2 }}>
+        <Divider sx={{ backgroundColor: '#2c3149' }} />
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleLogout} sx={{ py: 1.5 }}>
+            <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
+              <LogoutIcon />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Sair" 
+              primaryTypographyProps={{ sx: { color: 'white' } }}
+            />
+          </ListItemButton>
+        </ListItem>
+      </Box>
     </Box>
   );
 
-  if (loading) {
+  // Mostra loading enquanto carrega dados
+  if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <CircularProgress />
@@ -272,6 +295,9 @@ export default function Dashboard() {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
+          bgcolor: '#2c3149',
+          boxShadow: 'none',
+          borderBottom: '1px solid #3a3f50'
         }}
       >
         <Toolbar>
@@ -303,7 +329,12 @@ export default function Dashboard() {
           }}
           sx={{
             display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth, 
+              backgroundColor: '#1a1e2b',
+              borderRight: '1px solid #2c3149'
+            },
           }}
         >
           {drawer}
@@ -313,7 +344,12 @@ export default function Dashboard() {
           variant="permanent"
           sx={{
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth, 
+              backgroundColor: '#1a1e2b',
+              borderRight: '1px solid #2c3149'
+            },
           }}
           open
         >
@@ -322,14 +358,12 @@ export default function Dashboard() {
       </Box>
       <Box
         component="main"
-        sx={{ 
-          flexGrow: 1, 
-          p: 3, 
+        sx={{
+          flexGrow: 1,
+          p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           mt: 8,
-          backgroundColor: (theme) => theme.palette.mode === 'light' 
-            ? theme.palette.grey[100] 
-            : theme.palette.grey[900],
+          backgroundColor: '#252a3b',
           minHeight: '100vh'
         }}
       >
@@ -342,10 +376,12 @@ export default function Dashboard() {
               <Grid container spacing={3} sx={{ mb: 4 }}>
                 {userPolls.map((poll) => (
                   <Grid item xs={12} sm={6} md={4} key={poll.id}>
-                    <PollCard 
-                      poll={poll} 
-                      onVote={handleVote} 
+                    <PollCard
+                      poll={poll}
+                      onVote={handleVote}
+                      showResults={showResultsMap[poll.id] || false}
                       isOwner={true}
+                      onToggleResults={handleToggleResults}
                     />
                   </Grid>
                 ))}
@@ -360,10 +396,12 @@ export default function Dashboard() {
             <Grid container spacing={3}>
               {allPolls.map((poll) => (
                 <Grid item xs={12} sm={6} md={4} key={poll.id}>
-                  <PollCard 
-                    poll={poll} 
-                    onVote={handleVote} 
-                    isOwner={poll.createdBy === user.username}
+                  <PollCard
+                    poll={poll}
+                    onVote={handleVote}
+                    showResults={showResultsMap[poll.id] || false}
+                    isOwner={user && poll.createdBy === user.username}
+                    onToggleResults={handleToggleResults}
                   />
                 </Grid>
               ))}
@@ -373,8 +411,8 @@ export default function Dashboard() {
               <Typography variant="body1" color="text.secondary">
                 Nenhuma enquete disponível. Crie uma nova enquete!
               </Typography>
-              <Button 
-                variant="contained" 
+              <Button
+                variant="contained"
                 startIcon={<AddCircleIcon />}
                 onClick={() => setDialogOpen(true)}
                 sx={{ mt: 2 }}
@@ -386,16 +424,16 @@ export default function Dashboard() {
         </Container>
 
         {/* Dialog para criação de enquete */}
-        <PollCreationDialog 
-          open={dialogOpen} 
-          onClose={() => setDialogOpen(false)} 
-          onSubmit={handleCreatePoll} 
+        <PollCreationDialog
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+          onSubmit={handleCreatePoll}
         />
 
         {/* Snackbar para notificações */}
-        <Snackbar 
-          open={snackbar.open} 
-          autoHideDuration={6000} 
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={6000}
           onClose={handleSnackbarClose}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         >
