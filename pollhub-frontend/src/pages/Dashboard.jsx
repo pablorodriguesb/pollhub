@@ -36,6 +36,12 @@ import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import HowToVoteIcon from '@mui/icons-material/HowToVote';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import InfoIcon from '@mui/icons-material/Info';
+
+
 
 
 // Definição da largura do drawer (menu lateral)
@@ -104,6 +110,7 @@ export default function Dashboard() {
   const [allPolls, setAllPolls] = useState([]);
   const [showResultsMap, setShowResultsMap] = useState({});
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [detalheAberto, setDetalheAberto] = useState(null);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -199,13 +206,29 @@ export default function Dashboard() {
   // Lidar com o voto conforme o endpoint /api/polls/{id}/vote
   const handleVote = async (pollId, optionId) => {
     try {
+      // 1. Envia o voto para o backend
       await api.post(`/api/polls/${pollId}/vote?optionId=${optionId}`);
-      fetchData();
+
+      // 2. Busca o poll atualizado
+      const { data: updatedPoll } = await api.get(`/api/polls/${pollId}`);
+
+      // 3. Atualiza apenas o poll votado no estado
+      setUserPolls(prevPolls =>
+        prevPolls.map(poll =>
+          poll.id === pollId ? updatedPoll : poll
+        )
+      );
+
+      // 4. Mostra os resultados imediatamente
+      handleToggleResults(pollId, true);
+
+      // 5. Feedback visual
       setSnackbar({
         open: true,
         message: 'Voto registrado com sucesso!',
         severity: 'success'
       });
+
     } catch (error) {
       if (error.response?.status === 401) {
         logout();
@@ -273,21 +296,6 @@ export default function Dashboard() {
         </LogoBox>
         <Divider sx={{ backgroundColor: 'rgba(255, 255, 255, 0.12)', mt: 0, mb: 0 }} />
 
-        {/* Perfil do usuário */}
-        <Box sx={{ py: 1 }}>
-          <ListItem disablePadding>
-            <ListItemButton sx={{ py: 1.5 }}>
-              <ListItemIcon sx={{ minWidth: '40px', color: 'white' }}>
-                <PersonIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={user ? (user.username || user.name || user.email || 'Usuário') : 'Usuário'}
-                primaryTypographyProps={{ sx: { color: 'white' } }}
-              />
-            </ListItemButton>
-          </ListItem>
-        </Box>
-
         {/* Menu principal */}
         <List>
           <ListItem disablePadding>
@@ -339,34 +347,40 @@ export default function Dashboard() {
         </List>
       </Box>
 
-      {/* Botão de sair - na parte inferior */}
-      <Box>
-        <Divider sx={{ backgroundColor: 'rgba(255, 255, 255, 0.12)' }} />
-        <List>
-          <ListItem disablePadding>
-            <ListItemButton onClick={handleLogout} sx={{ py: 1.5 }}>
-              <ListItemIcon sx={{ minWidth: '40px', color: 'white' }}>
-                <LogoutIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Sair"
-                primaryTypographyProps={{ sx: { color: 'white' } }}
-              />
-            </ListItemButton>
-          </ListItem>
-        </List>
+    <Box>
+      {/* Perfil do usuario */}
+      <Box sx={{ py: 1 }}>
+        <ListItem disablePadding>
+          <ListItemButton sx={{ py: 1.5 }}>
+            <ListItemIcon sx={{ minWidth: '40px', color: 'white' }}>
+              <PersonIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary={user ? (user.name || user.username || user.email || 'Usuário') : 'Usuário'}
+              primaryTypographyProps={{ sx: { color: 'white' } }}
+            />
+          </ListItemButton>
+        </ListItem>
       </Box>
-    </Box>
-  );
 
-  // Mostra loading enquanto carrega dados
-  if (isLoading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+      {/* Divider e botão de sair */}
+      <Divider sx={{ backgroundColor: 'rgba(255, 255, 255, 0.12)' }} />
+      <List>
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleLogout} sx={{ py: 1.5 }}>
+            <ListItemIcon sx={{ minWidth: '40px', color: 'white' }}>
+              <LogoutIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="Sair"
+              primaryTypographyProps={{ sx: { color: 'white' } }}
+            />
+          </ListItemButton>
+        </ListItem>
+      </List>
+    </Box>
+  </Box>
+);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -393,7 +407,7 @@ export default function Dashboard() {
             fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
             fontWeight: 400,
             letterSpacing: '0.5px',
-            color: 'white',
+            color: 'blueviolet',
             mb: 0,
             ml: 1,
             fontSize: '1.3rem'
@@ -479,7 +493,7 @@ export default function Dashboard() {
                 fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
                 fontWeight: 300,
                 letterSpacing: '0.5px',
-                color: 'white',
+                color: 'whitesmoke',
                 mb: 4,
                 ml: 3,
                 fontSize: '1.5rem',
@@ -490,12 +504,34 @@ export default function Dashboard() {
             </Typography>
 
             {userPolls.length > 0 ? (
-              <Grid container spacing={3} sx={{ mb: 3 }} alignItems="stretch">
+              <Grid
+                container
+                spacing={3}
+                sx={{
+                  mb: 3,
+                  width: '100%',
+                  display: 'grid', // Troca flexbox por CSS Grid
+                  gridTemplateColumns: {
+                    xs: '1fr',
+                    sm: 'repeat(2, 1fr)',
+                    md: 'repeat(3, 1fr)'
+                  }
+                }}
+              >
                 {userPolls.map((poll) => (
-                  <Grid item xs={12} sm={6} md={4} lg={4} key={poll.id}>
+                  <Grid
+                    item
+                    key={poll.id}
+                    sx={{
+                      minWidth: 0, // Corrige overflow
+                      display: 'flex', // Força o card a preencher o espaço
+                      height: 'auto'
+                    }}
+                  >
                     <PollCard
                       poll={poll}
                       onVote={handleVote}
+                      onVerDetalhes={() => setDetalheAberto(poll)}
                       showResults={showResultsMap[poll.id] || false}
                       isOwner={true}
                       onToggleResults={handleToggleResults}
@@ -537,6 +573,89 @@ export default function Dashboard() {
           </Alert>
         </Snackbar>
       </ContentWrapper>
+
+      <Dialog
+  open={!!detalheAberto}
+  onClose={() => setDetalheAberto(null)}
+  fullWidth
+  maxWidth="sm"
+  PaperProps={{
+    sx: {
+      minHeight: '30vh',
+      maxHeight: '80vh',
+      borderRadius: 3,
+      overflowX: 'hidden',
+      overflowY: 'auto',
+      backgroundColor: 'hsl(220, 30%, 18%)', // igual ao dashboard, se quiser
+    }
+  }}
+>
+  {/* Título */}
+  <DialogTitle
+  sx={{
+    wordBreak: 'break-all',
+    overflowWrap: 'break-word',
+    p: 0,
+    background: 'transparent'
+  }}
+>
+  <Typography
+    variant="h6"
+    sx={{
+      fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+      fontWeight: 400,         
+      fontSize: '1.25rem',       
+      color: 'whitesmoke',       
+      lineHeight: 1.3,
+      px: 3,
+      pt: 2,
+      pb: 1,
+      wordBreak: 'break-all'
+    }}
+  >
+    {detalheAberto?.title}
+  </Typography>
+</DialogTitle>
+
+<Divider sx={{ mx: 2, my: 0 }} />
+
+<DialogContent
+  sx={{
+    p: 3,
+    pt: 2,
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    color: 'white',
+  }}
+>
+  <Typography
+    variant="subtitle2"
+    sx={{
+      fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+      fontWeight: 500,
+      fontSize: '1.08rem',
+      mb: 1,
+      color: 'rgba(255,255,255,0.85)'
+    }}
+  >
+    Descrição
+  </Typography>
+  <Typography
+    sx={{
+      fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+      whiteSpace: 'pre-line',
+      wordBreak: 'break-word',
+      fontSize: '1rem',
+      color: 'rgba(255,255,255,0.96)',
+      flex: 1,
+    }}
+  >
+    {detalheAberto?.description}
+  </Typography>
+</DialogContent>
+
+</Dialog>
     </Box>
   );
 }

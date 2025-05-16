@@ -32,8 +32,10 @@ import ShareIcon from '@mui/icons-material/Share';
 import api from '../api/client';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import UndoIcon from '@mui/icons-material/Undo';
+import InfoIcon from '@mui/icons-material/Info';
 
-export default function PollCard({ poll, onVote, showResults, isOwner, onToggleResults }) {
+export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isOwner, onToggleResults }) {
   const [selectedOption, setSelectedOption] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const { user } = useAuth();
@@ -82,10 +84,10 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
   const handleDeleteConfirm = async () => {
     try {
       await api.delete(`/api/polls/${poll.id}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
       setConfirmDelete(false);
       window.location.reload();
     } catch (error) {
@@ -125,29 +127,27 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
   return (
     <>
       <Card
-  sx={{
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    background: "hsl(220, 30%, 18%)",
-    color: "white",
-    borderRadius: 2,
-    boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.2)',
-    border: '1px solid rgba(255, 255, 255, 0.12)',
-    transition: 'transform 0.2s, box-shadow 0.2s',
-    '&:hover': {
-      transform: 'translateY(-4px)',
-      boxShadow: '0px 6px 10px rgba(0, 0, 0, 0.3)',
-    },
-    width: '100%', // Remove maxWidth e minWidth
-    minHeight: '300px' // Altura mínima consistente
-  }}
->
-        <CardContent sx={{ flexGrow: 1, pb: 1, pt: 2, px: 2 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', 
-            alignItems: 'flex-start', mb: 1,  minWidth: 0 }}>
-            {/* Título com truncamento forçado para evitar quebras de layout */}
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          background: "hsl(220, 30%, 18%)",
+          color: "white",
+          borderRadius: 2,
+          boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.2)',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          transition: 'transform 0.2s, box-shadow 0.2s',
+          '&:hover': {
+            transform: 'translateY(-4px)',
+            boxShadow: '0px 6px 10px rgba(0, 0, 0, 0.3)',
+          },
+          width: '100%', // Remove maxWidth e minWidth
+        }}
+      >
+        <CardContent sx={{ flexGrow: 1, pb: 1, pt: 2, px: 2, minHeight: 0 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1, minWidth: 0 }}>
+            {/* Título */}
             <Tooltip title={poll.title} placement="top" arrow>
               <Typography
                 variant="h6"
@@ -164,20 +164,21 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   display: '-webkit-box',
-                  WebkitLineClamp: 2,         // Limita a 2 linhas
+                  WebkitLineClamp: 2,
                   WebkitBoxOrient: 'vertical',
-                  whiteSpace: 'normal',       // Permite quebra de linha
-                  wordBreak: 'break-all',    // Quebra palavras longas
-                  hyphens: 'auto',            // Hifeniza se possível
-                  minWidth: 0, // Corrige flexbox shrinking
-                  '&::-webkit-scrollbar': { display: 'none' }, // Esconde scroll se houver
-                  lineHeight: '1.2rem', // Altura de linha fixa
-                  maxHeight: '2.4rem', // 2 linhas (1.2rem * 2)
+                  whiteSpace: 'normal',
+                  wordBreak: 'break-word',
+                  hyphens: 'auto',
+                  lineHeight: '1.2rem',
+                  maxHeight: '2.4rem',
+                  flexGrow: 0,
+                  maxHeight: '2.4rem'
                 }}
               >
                 {poll.title}
               </Typography>
             </Tooltip>
+
             {isOwner && (
               <IconButton
                 aria-label="configurações"
@@ -186,13 +187,40 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
                 sx={{
                   color: 'rgba(255, 255, 255, 0.7)',
                   p: 0.5,
-                  flexShrink: 0 // Impede que o ícone encolha
+                  flexShrink: 0
                 }}
               >
                 <MoreVertIcon fontSize="small" />
               </IconButton>
             )}
           </Box>
+
+          {/* Descrição */}
+          {poll.description && (
+            <Typography
+              variant="body2"
+              sx={{
+                fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+                color: 'whitesmoke',
+                fontSize: '1rem',
+                mb: 1,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                display: '-webkit-box',
+                WebkitBoxOrient: 'vertical',
+                WebkitLineClamp: 2,
+                whiteSpace: 'normal',
+                wordBreak: 'break-word',
+                lineHeight: '1.1rem',
+                flexGrow: 0,
+                maxHeight: '2.2rem'
+              }}
+            >
+              {poll.description}
+            </Typography>
+          )}
+
+
 
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
             <Typography
@@ -368,7 +396,7 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
             </Button>
           ) : (
             <Button
-              startIcon={<BarChartIcon sx={{ fontSize: '1rem' }} />}
+              startIcon={<UndoIcon sx={{ fontSize: '1rem' }} />}
               variant="outlined"
               fullWidth
               onClick={() => onToggleResults && onToggleResults(poll.id, false)}
@@ -392,6 +420,31 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
             </Button>
           )}
 
+<Button
+    startIcon={<InfoIcon sx={{ fontSize: '1rem' }} />}
+    variant="outlined"
+    fullWidth
+    size="small"
+    onClick={onVerDetalhes}
+    sx={{
+      borderColor: '#1976d2',
+      color: '#1976d2',
+      '&:hover': {
+        borderColor: '#8A2BE2',
+        backgroundColor: 'rgba(138, 43, 226, 0.1)',
+      },
+      textTransform: 'none',
+      fontWeight: 500,
+      fontSize: '0.85rem',
+      borderRadius: 1.5,
+      padding: '6px 12px',
+      height: '32px',
+      mt: 1 // Espaço acima se quiser separar dos outros
+    }}
+  >
+    Ver Enquete Completa
+  </Button>
+
           <Box sx={{ width: '100%', mt: 0.5 }}>
             <Button
               startIcon={<BarChartIcon sx={{ fontSize: '1rem' }} />}
@@ -414,7 +467,7 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
                 height: '32px'
               }}
             >
-              Ver resultados completos
+              Detalhes dos Resultados
             </Button>
 
             {isOwnerOrAdmin && (
@@ -438,11 +491,14 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
                   height: '32px'
                 }}
               >
-                Ver votos detalhados
+                Detalhes dos Votos
               </Button>
             )}
           </Box>
-        </CardActions>
+        
+       
+</CardActions>
+
       </Card>
 
       {/* Menu de opções */}
@@ -485,6 +541,7 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
           Excluir
         </MenuItem>
       </Menu>
+      
 
       {/* Dialog de confirmação de exclusão */}
       <Dialog
