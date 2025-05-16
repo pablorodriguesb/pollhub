@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import {
   Card,
   CardContent,
@@ -29,14 +30,19 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ShareIcon from '@mui/icons-material/Share';
 import api from '../api/client';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 
 export default function PollCard({ poll, onVote, showResults, isOwner, onToggleResults }) {
   const [selectedOption, setSelectedOption] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
+  const { user } = useAuth();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [pollsWithResults, setPollsWithResults] = useState([]);
   const menuOpen = Boolean(anchorEl);
+  const navigate = useNavigate();
+
+  const isOwnerOrAdmin = user && (user.username === poll.createdBy || user.role === 'ADMIN');
 
   // Calcular total de votos
   const totalVotes = poll.options.reduce((sum, option) => sum + (option.voteCount || 0), 0);
@@ -50,7 +56,7 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
 
     try {
       await onVote(poll.id, selectedOption);
-      setSelectedOption(''); // ✅ Reset para string vazia
+      setSelectedOption('');
     } catch (error) {
       console.error('Erro ao votar:', error);
     }
@@ -247,6 +253,27 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
             </Button>
           )}
         </CardActions>
+
+        <Button
+          startIcon={<BarChartIcon />}
+          variant="outlined"
+          fullWidth
+          sx={{ mt: 1 }}
+          onClick={() => navigate(`/polls/${poll.id}/results`)}
+        >
+          Ver resultados completos
+        </Button>
+        {isOwnerOrAdmin && (
+          <Button
+            startIcon={<HowToVoteIcon />}
+            variant="outlined"
+            fullWidth
+            sx={{ mt: 1 }}
+            onClick={() => navigate(`/votes/poll/${poll.id}`)}
+          >
+            Ver votos detalhados
+          </Button>
+        )}
       </Card>
 
       {/* Menu de opções */}

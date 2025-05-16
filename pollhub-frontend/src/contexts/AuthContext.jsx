@@ -1,5 +1,4 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import api from '../api/client';
 
 const AuthContext = createContext(null);
@@ -51,7 +50,7 @@ export const AuthProvider = ({ children }) => {
       const response = await api.post('/api/auth/login', credentials);
       
       // 1. Extração segura dos dados da resposta
-      const { token, user } = response.data;
+      const { token } = response.data;
   
       // Validação básica dos dados recebidos
       if (!token) {
@@ -60,20 +59,9 @@ export const AuthProvider = ({ children }) => {
   
       // 2. Armazenamento do token
       localStorage.setItem('token', token);
-      
-      // 3. Configuração imediata do header Axios
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  
-      // 4. Tratamento dos dados do usuário
-      let userPayload = { username: credentials.username }; // Fallback básico
-      
-      if (user) {
-        // Garante que username existe mesmo se o objeto user vier incompleto
-        userPayload = { 
-          username: user.username || credentials.username,
-          ...user // Preserva outras propriedades
-        };
-      }
+
+      // Crie o userPayload diretamente com as credenciais
+    const userPayload = { username: credentials.username };
   
       localStorage.setItem('user', JSON.stringify(userPayload));
       setUser(userPayload);
