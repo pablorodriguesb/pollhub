@@ -42,6 +42,15 @@ public class PollService {
         return pollRepository.save(poll);
     }
 
+    public void deletePoll(Long pollId) {
+        // verifica se a enquete existe
+        Poll poll = pollRepository.findById(pollId)
+                .orElseThrow(() -> new ResourceNotFoundException("Enquete não encontrada"));
+
+        // exclui a enquete (o JPA cuidara das dependências devido ao cascade)
+        pollRepository.deleteById(pollId);
+    }
+
     // retorna as enquetes públicas.
     public List<Poll> getPublicPolls() {
         return pollRepository.findByIsPublicTrue();

@@ -29,7 +29,15 @@ public class Vote {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "option_id", nullable = false)
+    @JoinColumn(
+            name = "option_id",
+            nullable = false,
+            foreignKey = @ForeignKey(
+                    name = "fk_vote_option",
+                    foreignKeyDefinition = "FOREIGN KEY (option_id)" +
+                            " REFERENCES options(id) ON DELETE CASCADE"
+            )
+    )
     @ToString.Exclude
     private Option option;
 

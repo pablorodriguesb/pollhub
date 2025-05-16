@@ -23,8 +23,8 @@ import {
   Alert,
   CircularProgress
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
-
 import PollIcon from '@mui/icons-material/Poll';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -33,18 +33,69 @@ import api from '../api/client';
 import PollCard from '../components/PollCard';
 import PollCreationDialog from '../components/PollCreationDialog';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom'; 4
+import { Link } from 'react-router-dom';
 import HowToVoteIcon from '@mui/icons-material/HowToVote';
+import BarChartIcon from '@mui/icons-material/BarChart';
 
 
-
+// Definição da largura do drawer (menu lateral)
 const drawerWidth = 240;
+
+// Estilos consistentes com o componente de referência
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  backgroundColor: 'hsl(220, 30%, 15%)',
+  borderRadius: 0,
+  boxShadow: 'none',
+  width: '100%',
+}));
+
+// ContentWrapper ajustado para remover espaço entre o menu e o conteúdo
+const ContentWrapper = styled(Box)(({ theme }) => ({
+  flexGrow: 1,
+  padding: 0,
+  margin: 0,
+  paddingTop: 0,
+  marginTop: theme.spacing(7),
+  minHeight: '100vh',
+  backgroundColor: 'hsl(220, 30%, 10%)',
+  backgroundImage: 'none',
+  display: 'flex',
+  flexDirection: 'column',
+  [theme.breakpoints.up('sm')]: {
+    marginLeft: 0, // Colado ao menu lateral
+    width: `calc(100% - ${drawerWidth}px)`,
+    paddingRight: theme.spacing(2), // Espaço à direita para o card não encostar na borda da tela
+    paddingTop: theme.spacing(2), // Espaço para separar do AppBar
+  },
+}));
+
+// StyledAppBar ajustado para alinhar perfeitamente com o título Poll App
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  backgroundColor: 'hsl(220, 30%, 15%)',
+  boxShadow: 'none',
+  borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+  height: '64px',
+  [theme.breakpoints.up('sm')]: {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: drawerWidth,
+  },
+}));
+
+// LogoBox consistente com a altura do AppBar
+const LogoBox = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(2),
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-start',
+  paddingLeft: theme.spacing(3),
+  height: '64px',
+}));
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  // Log para debug - verificar a estrutura do objeto user
-  console.log('User object:', user);
 
   // Estado para gerenciar UI e dados
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -192,109 +243,109 @@ export default function Dashboard() {
   };
 
   const drawer = (
-    <Box sx={{ bgcolor: '#1a1e2b', color: 'white', height: '100%' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', color: 'white' }}>
       {/* Logo e nome do app */}
-      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Box sx={{
-          width: 48,
-          height: 48,
-          borderRadius: '50%',
-          background: '#2c3149',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          mr: 1
-        }}>
-          <Typography variant="h6" sx={{ color: '#fff' }}>📊</Typography>
+      <Box>
+        <LogoBox>
+          <Box sx={{
+            width: 35,
+            height: 35,
+            borderRadius: '50%',
+            background: 'rgba(255, 255, 255, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mr: 2
+          }}>
+            <BarChartIcon fontSize="large" sx={{ color: '#8A2BE2' }} />
+          </Box>
+          <Typography variant="h6" noWrap component="div" sx={{
+            fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+            fontWeight: 400,
+            letterSpacing: '0.1px',
+            color: 'blueviolet',
+            mb: 0,
+            ml: 0,
+            fontSize: '1.3rem'
+          }}>
+            PollHub
+          </Typography>
+        </LogoBox>
+        <Divider sx={{ backgroundColor: 'rgba(255, 255, 255, 0.12)', mt: 0, mb: 0 }} />
+
+        {/* Perfil do usuário */}
+        <Box sx={{ py: 1 }}>
+          <ListItem disablePadding>
+            <ListItemButton sx={{ py: 1.5 }}>
+              <ListItemIcon sx={{ minWidth: '40px', color: 'white' }}>
+                <PersonIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary={user ? (user.username || user.name || user.email || 'Usuário') : 'Usuário'}
+                primaryTypographyProps={{ sx: { color: 'white' } }}
+              />
+            </ListItemButton>
+          </ListItem>
         </Box>
-        <Typography variant="h6" noWrap component="div" sx={{ color: 'white' }}>
-          Poll App
-        </Typography>
+
+        {/* Menu principal */}
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setDialogOpen(true)} sx={{ py: 1.5 }}>
+              <ListItemIcon sx={{ minWidth: '40px', color: 'white' }}>
+                <AddCircleIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Nova Enquete"
+                primaryTypographyProps={{ sx: { color: 'white' } }}
+              />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/dashboard" sx={{ py: 1.5 }}>
+              <ListItemIcon sx={{ minWidth: '40px', color: 'white' }}>
+                <PollIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Minhas Enquetes"
+                primaryTypographyProps={{ sx: { color: 'white' } }}
+              />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/my-votes" sx={{ py: 1.5 }}>
+              <ListItemIcon sx={{ minWidth: '40px', color: 'white' }}>
+                <HowToVoteIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Meus Votos"
+                primaryTypographyProps={{ sx: { color: 'white' } }}
+              />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/polls" sx={{ py: 1.5 }}>
+              <ListItemIcon sx={{ minWidth: '40px', color: 'white' }}>
+                <PollIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Todas Enquetes"
+                primaryTypographyProps={{ sx: { color: 'white' } }}
+              />
+            </ListItemButton>
+          </ListItem>
+        </List>
       </Box>
-      <Divider sx={{ backgroundColor: '#2c3149' }} />
 
-      {/* Perfil do usuário */}
-      <Box sx={{ py: 1 }}>
-        <ListItem disablePadding>
-          <ListItemButton sx={{ py: 1.5 }}>
-            <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
-              <PersonIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary={user ? (user.username || user.name || user.email || 'Usuário') : 'Usuário'}
-              primaryTypographyProps={{ sx: { color: 'white' } }}
-            />
-          </ListItemButton>
-        </ListItem>
-      </Box>
-
-      {/* Menu principal */}
-      <List>
-        <ListItem disablePadding>
-          <ListItemButton onClick={() => setDialogOpen(true)} sx={{ py: 1.5 }}>
-            <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
-              <AddCircleIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary="Nova Enquete"
-              primaryTypographyProps={{ sx: { color: 'white' } }}
-            />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton
-          component={Link}
-          to="/dashboard" sx={{ py: 1.5 }}>
-            <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
-              <PollIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary="Minhas Enquetes"
-              primaryTypographyProps={{ sx: { color: 'white' } }}
-            />
-          </ListItemButton>
-        </ListItem>
-
-        <ListItem disablePadding>
-          <ListItemButton
-            component={Link}
-            to="/my-votes"
-            sx={{ py: 1.5 }}
-          >
-            <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
-              <HowToVoteIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary="Meus Votos"
-              primaryTypographyProps={{ sx: { color: 'white' } }}
-            />
-          </ListItemButton>
-        </ListItem>
-
-        <ListItem disablePadding>
-          <ListItemButton
-            component={Link}
-            to="/polls"
-            sx={{ py: 1.5 }}
-          >
-            <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
-              <PollIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary="Todas Enquetes"
-              primaryTypographyProps={{ sx: { color: 'white' } }}
-            />
-          </ListItemButton>
-        </ListItem>
-      </List>
-
-      {/* Botão de sair - FORA do <List> */}
-      <Box sx={{ mt: 2 }}>
-        <Divider sx={{ backgroundColor: '#2c3149' }} />
+      {/* Botão de sair - na parte inferior */}
+      <Box>
+        <Divider sx={{ backgroundColor: 'rgba(255, 255, 255, 0.12)' }} />
         <List>
           <ListItem disablePadding>
             <ListItemButton onClick={handleLogout} sx={{ py: 1.5 }}>
-              <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
+              <ListItemIcon sx={{ minWidth: '40px', color: 'white' }}>
                 <LogoutIcon />
               </ListItemIcon>
               <ListItemText
@@ -320,34 +371,43 @@ export default function Dashboard() {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
-          bgcolor: '#2c3149',
-          boxShadow: 'none',
-          borderBottom: '1px solid #3a3f50'
-        }}
-      >
-        <Toolbar>
+      {/* AppBar fixo no topo - altura ajustada para alinhar com cabeçalho do menu lateral */}
+      <StyledAppBar position="fixed">
+        <Toolbar sx={{
+          backgroundColor: 'hsl(220, 30%, 15%)',
+          height: '64px',
+          minHeight: '64px',
+          pr: 0,
+          pl: 0,
+        }}>
           <IconButton
             color="inherit"
             aria-label="abrir menu"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            sx={{ mr: 1, ml: 1, display: { sm: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{
+            fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+            fontWeight: 400,
+            letterSpacing: '0.5px',
+            color: 'white',
+            mb: 0,
+            ml: 1,
+            fontSize: '1.3rem'
+          }}>
             Dashboard
           </Typography>
         </Toolbar>
-      </AppBar>
+      </StyledAppBar>
+
+      {/* Menu lateral */}
       <Box
         component="nav"
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        aria-label="menu de navegação"
       >
         {/* Drawer para dispositivos móveis */}
         <Drawer
@@ -355,20 +415,21 @@ export default function Dashboard() {
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Melhor desempenho em dispositivos móveis
+            keepMounted: true,
           }}
           sx={{
             display: { xs: 'block', sm: 'none' },
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,
-              backgroundColor: '#1a1e2b',
-              borderRight: '1px solid #2c3149'
+              backgroundColor: 'hsl(220, 30%, 10%)',
+              borderRight: '1px solid rgba(255, 255, 255, 0.12)'
             },
           }}
         >
           {drawer}
         </Drawer>
+
         {/* Drawer permanente para desktop */}
         <Drawer
           variant="permanent"
@@ -377,8 +438,8 @@ export default function Dashboard() {
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,
-              backgroundColor: '#1a1e2b',
-              borderRight: '1px solid #2c3149'
+              backgroundColor: 'hsl(220, 30%, 10%)',
+              borderRight: '1px solid rgba(255, 255, 255, 0.12)'
             },
           }}
           open
@@ -386,26 +447,52 @@ export default function Dashboard() {
           {drawer}
         </Drawer>
       </Box>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          mt: 8,
-          backgroundColor: '#252a3b',
-          minHeight: '100vh'
-        }}
-      >
-        <Container maxWidth="lg">
-          {userPolls.length > 0 && (
-            <>
-              <Typography variant="h5" gutterBottom>
-                Minhas Enquetes
-              </Typography>
-              <Grid container spacing={3} sx={{ mb: 4 }}>
+
+      {/* Conteúdo principal */}
+      <ContentWrapper component="main">
+        {/* Container principal responsivo */}
+        <Container
+          maxWidth={false}
+          sx={{
+            width: '100%',
+            px: { xs: 2, sm: 3, md: 8 },  // Padding lateral responsivo
+            py: 4,
+          }}
+        >
+          <Paper
+            sx={{
+              width: '100%',
+              maxWidth: { xs: '100%', md: 1600 },  // Limite máximo em telas grandes
+              mx: 'auto',  // Centraliza o conteúdo
+              p: { xs: 2, sm: 3 },  // Padding interno responsivo
+              borderRadius: 3,
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              minHeight: '80vh',
+              boxShadow: 6,  // Usa a escala de sombra do Material UI
+              backgroundColor: 'background.paper'
+            }}
+          >
+            <Typography
+              component="h1"
+              variant="h4"
+              sx={{
+                fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+                fontWeight: 300,
+                letterSpacing: '0.5px',
+                color: 'white',
+                mb: 4,
+                ml: 3,
+                fontSize: '1.5rem',
+                textAlign: 'left',
+              }}
+            >
+              Minhas Enquetes
+            </Typography>
+
+            {userPolls.length > 0 ? (
+              <Grid container spacing={3} sx={{ mb: 3 }} alignItems="stretch">
                 {userPolls.map((poll) => (
-                  <Grid item xs={12} sm={6} md={4} key={poll.id}>
+                  <Grid item xs={12} sm={6} md={4} lg={4} key={poll.id}>
                     <PollCard
                       poll={poll}
                       onVote={handleVote}
@@ -416,8 +503,19 @@ export default function Dashboard() {
                   </Grid>
                 ))}
               </Grid>
-            </>
-          )}
+            ) : (
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '50vh'
+              }}>
+                <Typography variant="h6" color="textSecondary">
+                  Nenhuma enquete encontrada
+                </Typography>
+              </Box>
+            )}
+          </Paper>
         </Container>
 
         {/* Dialog para criação de enquete */}
@@ -438,7 +536,7 @@ export default function Dashboard() {
             {snackbar.message}
           </Alert>
         </Snackbar>
-      </Box>
+      </ContentWrapper>
     </Box>
   );
 }

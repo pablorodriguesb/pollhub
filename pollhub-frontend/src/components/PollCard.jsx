@@ -21,7 +21,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  Tooltip
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import HowToVoteIcon from '@mui/icons-material/HowToVote';
@@ -32,13 +33,16 @@ import api from '../api/client';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
-
 export default function PollCard({ poll, onVote, showResults, isOwner, onToggleResults }) {
   const [selectedOption, setSelectedOption] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const { user } = useAuth();
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [pollsWithResults, setPollsWithResults] = useState([]);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
   const menuOpen = Boolean(anchorEl);
   const navigate = useNavigate();
 
@@ -77,7 +81,11 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
 
   const handleDeleteConfirm = async () => {
     try {
-      await api.delete(`/api/polls/${poll.id}`);
+      await api.delete(`/api/polls/${poll.id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
       setConfirmDelete(false);
       window.location.reload();
     } catch (error) {
@@ -86,15 +94,6 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
         message: 'Erro ao excluir enquete',
         severity: 'error'
       });
-    }
-  };
-
-  // Função para alternar a exibição dos resultados
-  const handleToggleResults = (pollId, show) => {
-    if (show) {
-      setPollsWithResults(prev => [...prev, pollId]);
-    } else {
-      setPollsWithResults(prev => prev.filter(id => id !== pollId));
     }
   };
 
@@ -126,51 +125,106 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
   return (
     <>
       <Card
-        sx={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          background: "#23273a",
-          color: "white",
-          borderRadius: 3,
-          boxShadow: 3,
-          border: "none",
-          transition: 'transform 0.2s, box-shadow 0.2s',
-          '&:hover': {
-            transform: 'translateY(-4px)',
-            boxShadow: 6,
-          },
-        }}
-      >
-
-        <CardContent sx={{ flexGrow: 1 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-            <Typography variant="h6" component="div" gutterBottom sx={{ fontWeight: 600 }}>
-              {poll.title}
-            </Typography>
+  sx={{
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    background: "hsl(220, 30%, 18%)",
+    color: "white",
+    borderRadius: 2,
+    boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.2)',
+    border: '1px solid rgba(255, 255, 255, 0.12)',
+    transition: 'transform 0.2s, box-shadow 0.2s',
+    '&:hover': {
+      transform: 'translateY(-4px)',
+      boxShadow: '0px 6px 10px rgba(0, 0, 0, 0.3)',
+    },
+    width: '100%', // Remove maxWidth e minWidth
+    minHeight: '300px' // Altura mínima consistente
+  }}
+>
+        <CardContent sx={{ flexGrow: 1, pb: 1, pt: 2, px: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', 
+            alignItems: 'flex-start', mb: 1,  minWidth: 0 }}>
+            {/* Título com truncamento forçado para evitar quebras de layout */}
+            <Tooltip title={poll.title} placement="top" arrow>
+              <Typography
+                variant="h6"
+                component="div"
+                gutterBottom
+                sx={{
+                  fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+                  fontWeight: 500,
+                  fontSize: '1rem',
+                  letterSpacing: '0.1px',
+                  color: 'white',
+                  mb: 0.5,
+                  maxWidth: isOwner ? 'calc(100% - 32px)' : '100%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,         // Limita a 2 linhas
+                  WebkitBoxOrient: 'vertical',
+                  whiteSpace: 'normal',       // Permite quebra de linha
+                  wordBreak: 'break-all',    // Quebra palavras longas
+                  hyphens: 'auto',            // Hifeniza se possível
+                  minWidth: 0, // Corrige flexbox shrinking
+                  '&::-webkit-scrollbar': { display: 'none' }, // Esconde scroll se houver
+                  lineHeight: '1.2rem', // Altura de linha fixa
+                  maxHeight: '2.4rem', // 2 linhas (1.2rem * 2)
+                }}
+              >
+                {poll.title}
+              </Typography>
+            </Tooltip>
             {isOwner && (
               <IconButton
                 aria-label="configurações"
                 size="small"
                 onClick={handleMenuClick}
+                sx={{
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  p: 0.5,
+                  flexShrink: 0 // Impede que o ícone encolha
+                }}
               >
-                <MoreVertIcon />
+                <MoreVertIcon fontSize="small" />
               </IconButton>
             )}
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                mr: 1,
+                color: 'rgba(255, 255, 255, 0.7)',
+                fontSize: '0.75rem'
+              }}
+            >
               Por{' '}
               {poll.createdBy ? (
-                <Link to={`/users/${poll.createdBy}`}>
+                <Link
+                  to={`/users/${poll.createdBy}`}
+                  style={{
+                    color: '#8A2BE2',
+                    textDecoration: 'none',
+                  }}
+                >
                   {poll.createdBy}
                 </Link>
               ) : (
                 'Anônimo'
               )}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'rgba(255, 255, 255, 0.5)',
+                fontSize: '0.7rem'
+              }}
+            >
               • {formatDate(poll.createdAt || new Date())}
             </Typography>
           </Box>
@@ -180,10 +234,16 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
             size="small"
             color="primary"
             variant="outlined"
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 1.5,
+              height: '20px',
+              borderColor: 'rgba(138, 43, 226, 0.5)',
+              color: 'rgba(255, 255, 255, 0.9)',
+              fontSize: '0.7rem'
+            }}
           />
 
-          <Divider sx={{ my: 1 }} />
+          <Divider sx={{ my: 1, backgroundColor: 'rgba(255, 255, 255, 0.12)' }} />
 
           {!showResults ? (
             <RadioGroup
@@ -195,9 +255,24 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
                 <FormControlLabel
                   key={option.id}
                   value={option.id}
-                  control={<Radio />}
-                  label={option.text}
-                  sx={{ mb: 0.5 }}
+                  control={
+                    <Radio
+                      sx={{
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        '&.Mui-checked': {
+                          color: '#8A2BE2',
+                        },
+                        padding: '4px',
+                      }}
+                      size="small"
+                    />
+                  }
+                  label={
+                    <Typography sx={{ fontSize: '0.85rem', color: 'white' }}>
+                      {option.text}
+                    </Typography>
+                  }
+                  sx={{ mb: 0.25, ml: -0.5 }}
                 />
               ))}
             </RadioGroup>
@@ -209,19 +284,52 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
                   : 0;
 
                 return (
-                  <Box key={option.id} sx={{ mb: 1 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                      <Typography variant="body2">{option.text}</Typography>
-                      <Typography variant="body2" fontWeight="bold">
+                  <Box key={option.id} sx={{ mb: 1.5 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.25 }}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '0.85rem',
+                          color: 'white',
+                          maxWidth: '85%',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {option.text}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        fontWeight="bold"
+                        sx={{
+                          fontSize: '0.85rem',
+                          color: 'white',
+                          ml: 1
+                        }}
+                      >
                         {votePercentage}%
                       </Typography>
                     </Box>
                     <LinearProgress
                       variant="determinate"
                       value={votePercentage}
-                      sx={{ height: 8, borderRadius: 1 }}
+                      sx={{
+                        height: 6,
+                        borderRadius: 1,
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        '& .MuiLinearProgress-bar': {
+                          backgroundColor: '#8A2BE2'
+                        }
+                      }}
                     />
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontSize: '0.7rem',
+                        color: 'rgba(255, 255, 255, 0.6)'
+                      }}
+                    >
                       {option.voteCount || 0} {option.voteCount === 1 ? 'voto' : 'votos'}
                     </Typography>
                   </Box>
@@ -231,49 +339,110 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
           )}
         </CardContent>
 
-        <CardActions sx={{ p: 2, pt: 0 }}>
+        <CardActions sx={{ p: 1.5, pt: 0, flexDirection: 'column' }}>
           {!showResults ? (
             <Button
-              startIcon={<HowToVoteIcon />}
+              startIcon={<HowToVoteIcon sx={{ fontSize: '1rem' }} />}
               variant="contained"
               fullWidth
               disabled={!selectedOption}
               onClick={handleVote}
+              sx={{
+                backgroundColor: '#8A2BE2',
+                '&:hover': {
+                  backgroundColor: '#7B1FA2',
+                },
+                '&.Mui-disabled': {
+                  backgroundColor: 'rgba(138, 43, 226, 0.3)',
+                },
+                textTransform: 'none',
+                fontWeight: 500,
+                fontSize: '0.85rem',
+                borderRadius: 1.5,
+                padding: '6px 12px',
+                mb: 1,
+                height: '32px'
+              }}
             >
               Votar
             </Button>
           ) : (
             <Button
-              startIcon={<BarChartIcon />}
+              startIcon={<BarChartIcon sx={{ fontSize: '1rem' }} />}
               variant="outlined"
               fullWidth
               onClick={() => onToggleResults && onToggleResults(poll.id, false)}
+              sx={{
+                borderColor: 'rgba(138, 43, 226, 0.5)',
+                color: 'rgba(255, 255, 255, 0.9)',
+                '&:hover': {
+                  borderColor: '#8A2BE2',
+                  backgroundColor: 'rgba(138, 43, 226, 0.1)',
+                },
+                textTransform: 'none',
+                fontWeight: 500,
+                fontSize: '0.85rem',
+                borderRadius: 1.5,
+                padding: '6px 12px',
+                mb: 1,
+                height: '32px'
+              }}
             >
               Voltar para votação
             </Button>
           )}
-        </CardActions>
 
-        <Button
-          startIcon={<BarChartIcon />}
-          variant="outlined"
-          fullWidth
-          sx={{ mt: 1 }}
-          onClick={() => navigate(`/polls/${poll.id}/results`)}
-        >
-          Ver resultados completos
-        </Button>
-        {isOwnerOrAdmin && (
-          <Button
-            startIcon={<HowToVoteIcon />}
-            variant="outlined"
-            fullWidth
-            sx={{ mt: 1 }}
-            onClick={() => navigate(`/votes/poll/${poll.id}`)}
-          >
-            Ver votos detalhados
-          </Button>
-        )}
+          <Box sx={{ width: '100%', mt: 0.5 }}>
+            <Button
+              startIcon={<BarChartIcon sx={{ fontSize: '1rem' }} />}
+              variant="outlined"
+              fullWidth
+              onClick={() => navigate(`/polls/${poll.id}/results`)}
+              sx={{
+                borderColor: 'rgba(138, 43, 226, 0.5)',
+                color: 'rgba(255, 255, 255, 0.9)',
+                '&:hover': {
+                  borderColor: '#8A2BE2',
+                  backgroundColor: 'rgba(138, 43, 226, 0.1)',
+                },
+                textTransform: 'none',
+                fontWeight: 500,
+                fontSize: '0.85rem',
+                borderRadius: 1.5,
+                padding: '6px 12px',
+                mb: 0.75,
+                height: '32px'
+              }}
+            >
+              Ver resultados completos
+            </Button>
+
+            {isOwnerOrAdmin && (
+              <Button
+                startIcon={<HowToVoteIcon sx={{ fontSize: '1rem' }} />}
+                variant="outlined"
+                fullWidth
+                onClick={() => navigate(`/votes/poll/${poll.id}`)}
+                sx={{
+                  borderColor: 'rgba(138, 43, 226, 0.5)',
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  '&:hover': {
+                    borderColor: '#8A2BE2',
+                    backgroundColor: 'rgba(138, 43, 226, 0.1)',
+                  },
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  fontSize: '0.85rem',
+                  borderRadius: 1.5,
+                  padding: '6px 12px',
+                  height: '32px'
+                }}
+              >
+                Ver votos detalhados
+              </Button>
+            )}
+          </Box>
+        </CardActions>
       </Card>
 
       {/* Menu de opções */}
@@ -281,12 +450,37 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
         anchorEl={anchorEl}
         open={menuOpen}
         onClose={handleMenuClose}
+        PaperProps={{
+          sx: {
+            backgroundColor: 'hsl(220, 30%, 15%)',
+            color: 'white',
+            boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.3)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+          }
+        }}
       >
-        <MenuItem onClick={handleShareClick}>
-          <ShareIcon fontSize="small" sx={{ mr: 1 }} />
+        <MenuItem
+          onClick={handleShareClick}
+          sx={{
+            fontSize: '0.85rem',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.1)'
+            }
+          }}
+        >
+          <ShareIcon fontSize="small" sx={{ mr: 1, color: 'rgba(255, 255, 255, 0.7)' }} />
           Compartilhar
         </MenuItem>
-        <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>
+        <MenuItem
+          onClick={handleDeleteClick}
+          sx={{
+            color: '#f44336',
+            fontSize: '0.85rem',
+            '&:hover': {
+              backgroundColor: 'rgba(244, 67, 54, 0.1)'
+            }
+          }}
+        >
           <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
           Excluir
         </MenuItem>
@@ -296,18 +490,57 @@ export default function PollCard({ poll, onVote, showResults, isOwner, onToggleR
       <Dialog
         open={confirmDelete}
         onClose={() => setConfirmDelete(false)}
+        PaperProps={{
+          sx: {
+            backgroundColor: 'hsl(220, 30%, 15%)',
+            color: 'white',
+            boxShadow: '0px 3px 15px rgba(0, 0, 0, 0.4)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: 2
+          }
+        }}
       >
-        <DialogTitle>Confirmar exclusão</DialogTitle>
+        <DialogTitle sx={{
+          fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+          fontWeight: 500,
+          fontSize: '1.2rem',
+          color: 'white'
+        }}>
+          Confirmar exclusão
+        </DialogTitle>
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
             Tem certeza que deseja excluir esta enquete? Esta ação não pode ser desfeita.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmDelete(false)} color="primary">
+          <Button
+            onClick={() => setConfirmDelete(false)}
+            sx={{
+              color: 'rgba(255, 255, 255, 0.7)',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)'
+              },
+              textTransform: 'none',
+              fontWeight: 500,
+              fontSize: '0.85rem'
+            }}
+          >
             Cancelar
           </Button>
-          <Button onClick={handleDeleteConfirm} color="error" startIcon={<DeleteIcon />}>
+          <Button
+            onClick={handleDeleteConfirm}
+            startIcon={<DeleteIcon />}
+            sx={{
+              color: '#f44336',
+              '&:hover': {
+                backgroundColor: 'rgba(244, 67, 54, 0.1)'
+              },
+              textTransform: 'none',
+              fontWeight: 500,
+              fontSize: '0.85rem'
+            }}
+          >
             Excluir
           </Button>
         </DialogActions>

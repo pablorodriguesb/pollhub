@@ -7,7 +7,6 @@ import com.pablorodriguesb.pollhub.model.User;
 import com.pablorodriguesb.pollhub.security.JwtTokenUtil;
 import com.pablorodriguesb.pollhub.service.CustomUserDetailsService;
 import com.pablorodriguesb.pollhub.service.UserService;
-import jakarta.validation.Valid;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

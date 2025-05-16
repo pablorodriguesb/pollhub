@@ -145,4 +145,32 @@ public class PollController {
         PollResultDTO results = pollService.getResults(id);
         return ResponseEntity.ok(results);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePoll(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        // verifica autenticacao
+        if (userDetails == null) {
+            throw new AccessDeniedException("Acesso negado: usuário não autenticado");
+        }
+
+        // busca o usuario logado
+        User currentUser = userService.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+
+        // busca a enquete
+        Poll poll = pollService.getPollById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Enquete não encontrada"));
+
+        // verifica se o usuario é o dono
+        if (!poll.getCreatedBy().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("Acesso negado: você não é o criador desta enquete");
+        }
+
+        // exclui a enquete
+        pollService.deletePoll(id);
+        return ResponseEntity.noContent().build(); // Retorna 204 (No Content)
+    }
 }

@@ -61,6 +61,8 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/users/me/polls").authenticated()
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/polls/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
