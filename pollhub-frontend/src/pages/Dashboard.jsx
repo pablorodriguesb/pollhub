@@ -242,7 +242,9 @@ export default function Dashboard() {
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
-          <ListItemButton sx={{ py: 1.5 }}>
+          <ListItemButton
+          component={Link}
+          to="/dashboard" sx={{ py: 1.5 }}>
             <ListItemIcon sx={{ color: 'white', minWidth: '40px' }}>
               <PollIcon />
             </ListItemIcon>
@@ -415,40 +417,6 @@ export default function Dashboard() {
                 ))}
               </Grid>
             </>
-          )}
-
-          <Typography variant="h5" gutterBottom>
-            Todas Enquetes
-          </Typography>
-          {allPolls.length > 0 ? (
-            <Grid container spacing={3}>
-              {allPolls.map((poll) => (
-                <Grid item xs={12} sm={6} md={4} key={poll.id}>
-                  <PollCard
-                    poll={poll}
-                    onVote={handleVote}
-                    showResults={showResultsMap[poll.id] || false}
-                    isOwner={user && poll.createdBy === user.username}
-                    onToggleResults={handleToggleResults}
-                  />
-
-                </Grid>
-              ))}
-            </Grid>
-          ) : (
-            <Paper sx={{ p: 3, textAlign: 'center' }}>
-              <Typography variant="body1" color="text.secondary">
-                Nenhuma enquete disponível. Crie uma nova enquete!
-              </Typography>
-              <Button
-                variant="contained"
-                startIcon={<AddCircleIcon />}
-                onClick={() => setDialogOpen(true)}
-                sx={{ mt: 2 }}
-              >
-                Nova Enquete
-              </Button>
-            </Paper>
           )}
         </Container>
 
