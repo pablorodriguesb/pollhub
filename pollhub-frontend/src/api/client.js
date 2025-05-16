@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -22,6 +22,18 @@ api.interceptors.request.use(
 // Função para buscar votos do usuário logado
 api.getUserVotes = async () => {
   const response = await api.get('/api/users/me/votes');
+  return response.data;
+};
+
+// GET /api/polls/{id}/results
+api.getPollResults = async (pollId) => {
+  const response = await api.get(`/api/polls/${pollId}/results`);
+  return response.data;
+};
+
+// GET /api/votes/poll/{pollId}
+api.getPollVotes = async (pollId) => {
+  const response = await api.get(`/api/votes/poll/${pollId}`);
   return response.data;
 };
 

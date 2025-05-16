@@ -8,6 +8,8 @@ import Dashboard from './pages/Dashboard';
 import UserProfile from './pages/UserProfile';
 import AllPolls from './pages/AllPolls';
 import UserVotes from './pages/UserVotes';
+import PollResults from './pages/PollResults';
+import PollVotes from './pages/PollVotes';
 
 const AppRoutes = () => {
   return (
@@ -22,6 +24,9 @@ const AppRoutes = () => {
         </Route>
 
         <Route path="/my-votes" element={<UserVotes />} />
+
+        <Route path="/polls/:id/results" element={<PollResults />} />
+        <Route path="/votes/poll/:pollId" element={<PollVotes />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/users/:username" element={<UserProfile />} />
