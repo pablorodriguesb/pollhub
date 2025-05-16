@@ -10,5 +10,6 @@ public class VoteResponseDTO {
     private String pollTitle;
     private Long optionId;
     private String optionText;
+    private String username;
     private LocalDateTime votedAt;
 }

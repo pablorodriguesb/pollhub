@@ -59,8 +59,10 @@ public class VoteService {
 
     // retorna todos os votos de uma enquete.
     @Transactional(readOnly = true)
-    public List<Vote> getVotesByPoll(Poll poll) {
-        return voteRepository.findByPoll(poll);
+    public List<VoteResponseDTO> getVotesByPoll(Long pollId) {
+        List<Vote> votes = voteRepository.findByPollId(pollId);
+
+        return convertVotesToDTOs(votes);
     }
 
     // retorna todos os votos de um usuario.
@@ -76,6 +78,7 @@ public class VoteService {
             dto.setPollTitle(vote.getPoll().getTitle());
             dto.setOptionId(vote.getOption().getId());
             dto.setOptionText(vote.getOption().getText());
+            dto.setUsername(vote.getUser().getUsername());
             dto.setVotedAt(vote.getVotedAt());
             return dto;
         }).collect(Collectors.toList());
