@@ -109,6 +109,8 @@ public class PollService {
 
         PollResultDTO pollResultDTO = new PollResultDTO();
         pollResultDTO.setPollId(poll.getId());
+        pollResultDTO.setTitle(poll.getTitle());
+        pollResultDTO.setDescription(poll.getDescription());
         pollResultDTO.setResults(results);
         return pollResultDTO;
     }

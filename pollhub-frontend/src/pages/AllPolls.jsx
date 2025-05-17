@@ -401,7 +401,7 @@ export default function AllPolls() {
             ml: 1,
             fontSize: '1.3rem'
           }}>
-            Pools
+            Polls
           </Typography>
         </Toolbar>
       </StyledAppBar>

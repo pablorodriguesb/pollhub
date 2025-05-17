@@ -15,19 +15,21 @@ import {
   FormHelperText,
   InputAdornment,
   Checkbox,
-  FormControlLabel
+  FormControlLabel,
+  CircularProgress
 } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HowToVoteIcon from '@mui/icons-material/HowToVote';
 
 export default function PollCreationDialog({ open, onClose, onSubmit }) {
-  // ESTADOS
+  // Estados
   const [question, setQuestion] = useState('');
   const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(true);
   const [options, setOptions] = useState(['', '']);
   const [expirationDays, setExpirationDays] = useState(7);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({
     question: '',
     description: '',
@@ -35,7 +37,7 @@ export default function PollCreationDialog({ open, onClose, onSubmit }) {
     expiration: ''
   });
 
-  // HANDLERS
+  // Handlers
   const handleQuestionChange = (e) => {
     setQuestion(e.target.value);
     if (e.target.value) setErrors((err) => ({ ...err, question: '' }));
@@ -87,7 +89,7 @@ export default function PollCreationDialog({ open, onClose, onSubmit }) {
     setIsPublic(e.target.checked);
   };
 
-  // VALIDAÇÃO
+  // Validação
   const validateForm = () => {
     let isValid = true;
     const newErrors = {
@@ -133,25 +135,33 @@ export default function PollCreationDialog({ open, onClose, onSubmit }) {
     return isValid;
   };
 
-  // SUBMIT
-  const handleSubmit = () => {
+  // Submit
+  const handleSubmit = async () => {
     if (!validateForm()) return;
-
-    const pollData = {
-      title: question.trim(),
-      description: description.trim(),
-      isPublic,
-      options: options
-        .filter(option => option.trim())
-        .map(option => ({ text: option.trim() })),
-      duration: expirationDays 
-    };
-
-    onSubmit(pollData);
-    resetForm();
+    
+    setIsSubmitting(true);
+    
+    try {
+      const pollData = {
+        title: question.trim(),
+        description: description.trim(),
+        isPublic,
+        options: options
+          .filter(option => option.trim())
+          .map(option => ({ text: option.trim() })),
+        duration: expirationDays 
+      };
+  
+      await onSubmit(pollData);
+      resetForm();
+    } catch (error) {
+      // Erro já tratado pelo componente pai
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  // RESET
+  // Reset
   const resetForm = () => {
     setQuestion('');
     setDescription('');
@@ -171,24 +181,55 @@ export default function PollCreationDialog({ open, onClose, onSubmit }) {
     onClose();
   };
 
-  // RENDER
+  // Render
   return (
     <Dialog
       open={open}
       onClose={handleClose}
       maxWidth="sm"
       fullWidth
+      PaperProps={{
+        sx: {
+          minHeight: '50vh',
+          borderRadius: 3,
+          backgroundColor: 'hsl(220, 30%, 18%)',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          boxShadow: 6,
+          color: 'white'
+        }
+      }}
     >
-      <DialogTitle>
-        <Box display="flex" alignItems="center">
-          <HowToVoteIcon sx={{ mr: 1 }} />
-          <Typography variant="h6">
+      <DialogTitle sx={{ p: 0, background: 'transparent' }}>
+        <Box display="flex" alignItems="center" sx={{ p: 2 }}>
+          <Box 
+            sx={{
+              width: 35,
+              height: 35,
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mr: 2
+            }}
+          >
+            <HowToVoteIcon fontSize="medium" sx={{ color: '#8A2BE2' }} />
+          </Box>
+          <Typography variant="h6" sx={{
+            fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+            fontWeight: 400,
+            letterSpacing: '0.5px',
+            color: 'blueviolet',
+            fontSize: '1.3rem'
+          }}>
             Criar Nova Enquete
           </Typography>
         </Box>
       </DialogTitle>
-      <Divider />
-      <DialogContent>
+      
+      <Divider sx={{ backgroundColor: 'rgba(255, 255, 255, 0.12)', mx: 2 }} />
+      
+      <DialogContent sx={{ p: 3 }}>
         <Box component="form" sx={{ mt: 1 }}>
           <TextField
             margin="normal"
@@ -202,6 +243,28 @@ export default function PollCreationDialog({ open, onClose, onSubmit }) {
             onChange={handleQuestionChange}
             error={Boolean(errors.question)}
             helperText={errors.question}
+            sx={{
+              '& .MuiInputBase-root': {
+                color: 'rgba(255, 255, 255, 0.9)',
+              },
+              '& .MuiInputLabel-root': {
+                color: 'rgba(255, 255, 255, 0.7)',
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: 'rgba(255, 255, 255, 0.23)',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'rgba(255, 255, 255, 0.5)',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: 'blueviolet',
+                },
+              },
+              '& .MuiFormHelperText-root': {
+                color: theme => theme.palette.error.main,
+              }
+            }}
           />
 
           <TextField
@@ -216,6 +279,30 @@ export default function PollCreationDialog({ open, onClose, onSubmit }) {
             error={Boolean(errors.description)}
             helperText={errors.description}
             inputProps={{ maxLength: 500 }}
+            multiline
+            rows={3}
+            sx={{
+              '& .MuiInputBase-root': {
+                color: 'rgba(255, 255, 255, 0.9)',
+              },
+              '& .MuiInputLabel-root': {
+                color: 'rgba(255, 255, 255, 0.7)',
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: 'rgba(255, 255, 255, 0.23)',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'rgba(255, 255, 255, 0.5)',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: 'blueviolet',
+                },
+              },
+              '& .MuiFormHelperText-root': {
+                color: theme => theme.palette.error.main,
+              }
+            }}
           />
 
           <FormControlLabel
@@ -223,13 +310,31 @@ export default function PollCreationDialog({ open, onClose, onSubmit }) {
               <Checkbox
                 checked={isPublic}
                 onChange={handleIsPublicChange}
+                sx={{
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  '&.Mui-checked': {
+                    color: 'blueviolet',
+                  },
+                }}
               />
             }
-            label="Enquete pública"
+            label={
+              <Typography sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+                Enquete pública
+              </Typography>
+            }
             sx={{ mt: 1 }}
           />
 
-          <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
+          <Typography 
+            variant="subtitle1" 
+            sx={{ 
+              mt: 2, 
+              mb: 1, 
+              color: 'rgba(255, 255, 255, 0.9)',
+              fontWeight: 400
+            }}
+          >
             Opções de Resposta
           </Typography>
 
@@ -239,17 +344,45 @@ export default function PollCreationDialog({ open, onClose, onSubmit }) {
                 required
                 fullWidth
                 label={`Opção ${index + 1}`}
-                placeholder={`Opção ${index + 1}`}
+                placeholder={`Digite a opção ${index + 1}`}
                 value={option}
                 onChange={(e) => handleOptionChange(index, e.target.value)}
                 error={Boolean(errors.options[index])}
                 helperText={errors.options[index]}
-                sx={{ mr: 1 }}
+                sx={{
+                  mr: 1,
+                  '& .MuiInputBase-root': {
+                    color: 'rgba(255, 255, 255, 0.9)',
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'rgba(255, 255, 255, 0.7)',
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: 'rgba(255, 255, 255, 0.23)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'rgba(255, 255, 255, 0.5)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'blueviolet',
+                    },
+                  },
+                  '& .MuiFormHelperText-root': {
+                    color: theme => theme.palette.error.main,
+                  }
+                }}
               />
               <IconButton
                 color="error"
                 onClick={() => handleRemoveOption(index)}
                 disabled={options.length <= 2}
+                sx={{
+                  color: options.length <= 2 ? 'rgba(255, 0, 0, 0.3)' : 'rgba(255, 0, 0, 0.7)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 0, 0, 0.08)',
+                  }
+                }}
               >
                 <DeleteIcon />
               </IconButton>
@@ -259,38 +392,88 @@ export default function PollCreationDialog({ open, onClose, onSubmit }) {
           <Button
             startIcon={<AddCircleIcon />}
             onClick={handleAddOption}
-            sx={{ mt: 1 }}
+            sx={{
+              mt: 1,
+              color: 'rgba(255, 255, 255, 0.9)',
+              '&:hover': {
+                backgroundColor: 'rgba(138, 43, 226, 0.08)',
+              }
+            }}
           >
             Adicionar opção
           </Button>
 
-          <FormControl fullWidth margin="normal" error={Boolean(errors.expiration)}>
+          <FormControl 
+            fullWidth 
+            margin="normal" 
+            error={Boolean(errors.expiration)}
+          >
             <TextField
               type="number"
               label="Duração da enquete (dias)"
               value={expirationDays}
               onChange={handleExpirationChange}
               InputProps={{
-                inputProps: { min: 1 },
-                endAdornment: <InputAdornment position="end">dias</InputAdornment>,
+                inputProps: { min: 1, max: 365 },
+                endAdornment: <InputAdornment position="end" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>dias</InputAdornment>,
+              }}
+              sx={{
+                '& .MuiInputBase-root': {
+                  color: 'rgba(255, 255, 255, 0.9)',
+                },
+                '& .MuiInputLabel-root': {
+                  color: 'rgba(255, 255, 255, 0.7)',
+                },
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: 'rgba(255, 255, 255, 0.23)',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(255, 255, 255, 0.5)',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'blueviolet',
+                  },
+                }
               }}
             />
             {errors.expiration && (
-              <FormHelperText>{errors.expiration}</FormHelperText>
+              <FormHelperText sx={{ color: theme => theme.palette.error.main }}>
+                {errors.expiration}
+              </FormHelperText>
             )}
           </FormControl>
         </Box>
       </DialogContent>
+      
       <DialogActions sx={{ px: 3, pb: 3 }}>
-        <Button onClick={handleClose}>
+        <Button 
+          onClick={handleClose}
+          sx={{
+            color: 'rgba(255, 255, 255, 0.7)',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+            }
+          }}
+        >
           Cancelar
         </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
-          startIcon={<HowToVoteIcon />}
+          disabled={isSubmitting}
+          startIcon={isSubmitting ? <CircularProgress size={20} /> : <HowToVoteIcon />}
+          sx={{
+            backgroundColor: 'blueviolet',
+            '&:hover': {
+              backgroundColor: '#9932CC',
+            },
+            '&.Mui-disabled': {
+              backgroundColor: 'rgba(138, 43, 226, 0.5)',
+            }
+          }}
         >
-          Criar Enquete
+          {isSubmitting ? 'Criando...' : 'Criar Enquete'}
         </Button>
       </DialogActions>
     </Dialog>
