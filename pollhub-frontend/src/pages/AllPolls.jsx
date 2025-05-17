@@ -339,18 +339,18 @@ export default function AllPolls() {
       <Box>
         {/* Perfil do usuario */}
         <Box sx={{ py: 1 }}>
-          <ListItem disablePadding>
-            <ListItemButton sx={{ py: 1.5 }}>
-              <ListItemIcon sx={{ minWidth: '40px', color: 'white' }}>
-                <PersonIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={user ? (user.name || user.username || user.email || 'Usuário') : 'Usuário'}
-                primaryTypographyProps={{ sx: { color: 'white' } }}
-              />
-            </ListItemButton>
-          </ListItem>
-        </Box>
+        <ListItem disablePadding>
+          <ListItemButton sx={{ py: 1.5 }}>
+            <ListItemIcon sx={{ minWidth: '38px', color: 'blueviolet' }}>
+              <PersonIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary={user ? (user.name || user.username || user.email || 'Usuário') : 'Usuário'}
+              primaryTypographyProps={{ sx: { color: 'blueviolet', mt: 0.3 } }}
+            />
+          </ListItemButton>
+        </ListItem>
+      </Box>
 
         {/* Divider e botão de sair */}
         <Divider sx={{ backgroundColor: 'rgba(255, 255, 255, 0.12)' }} />

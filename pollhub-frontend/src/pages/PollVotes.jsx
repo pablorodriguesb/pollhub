@@ -19,7 +19,8 @@ import {
   IconButton,
   Snackbar,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Divider
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -49,7 +50,7 @@ const ContentWrapper = styled(Box)(({ theme }) => ({
   flexDirection: 'column'
 }));
 
-// Estilização para a tabela de votos
+// Estilização para a tabela de votos consistente com PollResults
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   borderRadius: theme.spacing(1),
   '& .MuiTable-root': {
@@ -57,10 +58,10 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
     borderSpacing: 0,
   },
   '& .MuiTableHead-root': {
-    backgroundColor: 'hsl(220, 30%, 20%)',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
   },
   '& .MuiTableHead-root .MuiTableCell-root': {
-    color: 'rgba(255, 255, 255, 0.87)',
+    color: 'blueviolet',
     fontWeight: 500,
     borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
     padding: theme.spacing(2),
@@ -87,6 +88,7 @@ export default function PollVotes() {
   const [isLoading, setIsLoading] = useState(true);
   const [votes, setVotes] = useState([]);
   const [pollTitle, setPollTitle] = useState('');
+  const [pollDescription, setPollDescription] = useState('');
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -109,6 +111,7 @@ export default function PollVotes() {
       try {
         const pollResponse = await api.get(`/api/polls/${pollId}`);
         setPollTitle(pollResponse.data.title);
+        setPollDescription(pollResponse.data.description || '');
       } catch (error) {
         console.error('Erro ao buscar detalhes da enquete:', error);
       }
@@ -203,7 +206,7 @@ export default function PollVotes() {
             <Paper
               sx={{
                 width: '100%',
-                maxWidth: { xs: '100%', md: 1200 },  // Limite máximo em telas grandes
+                maxWidth: { xs: '100%', md: 800 },  // Limite máximo em telas grandes como em PollResults
                 mx: 'auto',  // Centraliza o conteúdo
                 p: { xs: 2, sm: 3 },  // Padding interno responsivo
                 borderRadius: 3,
@@ -213,7 +216,7 @@ export default function PollVotes() {
                 backgroundColor: 'background.paper'
               }}
             >
-              {/* Cabeçalho com título */}
+              {/* Cabeçalho com título consistente com PollResults */}
               <Typography
                 component="h1"
                 variant="h4"
@@ -222,26 +225,67 @@ export default function PollVotes() {
                   fontWeight: 300,
                   letterSpacing: '0.5px',
                   color: 'whitesmoke',
-                  mb: 3,
+                  mb: 1,
                   ml: 1,
                   fontSize: '1.5rem',
                   textAlign: 'left',
                 }}
               >
-                {pollTitle ? `Votos: ${pollTitle}` : 'Votos Registrados'}
+                {pollTitle || 'Votos Registrados'}
               </Typography>
+                
+              {/* Resumo curto da descrição (primeiras 80 caracteres) */}
+              {pollDescription && (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+                    color: 'rgba(255, 255, 255, 0.7)',
+                    mb: 3,
+                    ml: 1,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                  }}
+                >
+                  {pollDescription.length > 80
+                    ? `${pollDescription.substring(0, 80)}...`
+                    : pollDescription}
+                </Typography>
+              )}
+                
+              <Divider sx={{ my: 2, backgroundColor: 'rgba(255, 255, 255, 0.12)' }} />
 
               {/* Tabela de votos */}
               {votes.length > 0 ? (
-                <Box sx={{ px: { xs: 0, sm: 1 }, pb: 3 }}>
-                  <StyledTableContainer component={Paper} sx={{ 
+                <Box sx={{ 
+                  p: 2, 
+                  backgroundColor: 'rgba(255, 255, 255, 0.03)', 
+                  borderRadius: 2,
+                  mb: 2 
+                }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+                      color: 'blueviolet',
+                      mb: 2,
+                      fontWeight: 500,
+                    }}
+                  >
+                    Registro detalhado de votos ({votes.length})
+                  </Typography>
+                    
+                  <StyledTableContainer component={Box} sx={{ 
                     overflow: 'auto',
-                    backgroundColor: 'hsl(220, 30%, 15%)', 
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    backgroundColor: 'transparent',
                     borderRadius: 2,
-                    boxShadow: 'none'
+                    boxShadow: 'none',
+                    maxHeight: '60vh'
                   }}>
-                    <Table sx={{ minWidth: 650 }} aria-label="tabela de votos">
+                    <Table stickyHeader aria-label="tabela de votos">
                       <TableHead>
                         <TableRow>
                           <TableCell>Usuário</TableCell>
@@ -252,9 +296,25 @@ export default function PollVotes() {
                       <TableBody>
                         {votes.map((vote, index) => (
                           <TableRow key={index}>
-                            <TableCell>{vote.username}</TableCell>
-                            <TableCell>{vote.optionText}</TableCell>
-                            <TableCell>{new Date(vote.votedAt).toLocaleString()}</TableCell>
+                            <TableCell sx={{ 
+                              maxWidth: '200px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {vote.username}
+                            </TableCell>
+                            <TableCell sx={{ 
+                              maxWidth: '250px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {vote.optionText}
+                            </TableCell>
+                            <TableCell>
+                              {new Date(vote.votedAt).toLocaleString()}
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -266,12 +326,39 @@ export default function PollVotes() {
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  height: '50vh'
+                  height: '30vh',  // Altura reduzida para ser consistente com PollResults
+                  flexDirection: 'column',
+                  backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                  borderRadius: 2,
+                  p: 3,
+                  mt: 2
                 }}>
-                  <Typography variant="h6" color="textSecondary">
-                    Nenhum voto encontrado para esta enquete
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      mb: 2
+                    }}
+                  >
+                    Nenhum voto registrado ainda
                   </Typography>
                 </Box>
+              )}
+
+              {/* Total de votos - semelhante a PollResults */}
+              {votes.length > 0 && (
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    mb: 2,
+                    ml: 1,
+                    mt: 2
+                  }}
+                >
+                </Typography>
               )}
             </Paper>
           )}

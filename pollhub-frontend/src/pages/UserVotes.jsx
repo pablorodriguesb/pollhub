@@ -223,16 +223,17 @@ const DrawerContent = ({ user, onLogout }) => (
       <Box sx={{ py: 1 }}>
         <ListItem disablePadding>
           <ListItemButton sx={{ py: 1.5 }}>
-            <ListItemIcon sx={{ minWidth: '40px', color: 'white' }}>
+            <ListItemIcon sx={{ minWidth: '38px', color: 'blueviolet' }}>
               <PersonIcon />
             </ListItemIcon>
             <ListItemText
               primary={user ? (user.name || user.username || user.email || 'Usuário') : 'Usuário'}
-              primaryTypographyProps={{ sx: { color: 'white' } }}
+              primaryTypographyProps={{ sx: { color: 'blueviolet', mt: 0.3 } }}
             />
           </ListItemButton>
         </ListItem>
       </Box>
+
 
       {/* Divider and logout button */}
       <Divider sx={{ backgroundColor: 'rgba(255, 255, 255, 0.12)' }} />

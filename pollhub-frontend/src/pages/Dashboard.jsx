@@ -352,12 +352,12 @@ export default function Dashboard() {
       <Box sx={{ py: 1 }}>
         <ListItem disablePadding>
           <ListItemButton sx={{ py: 1.5 }}>
-            <ListItemIcon sx={{ minWidth: '40px', color: 'white' }}>
+            <ListItemIcon sx={{ minWidth: '38px', color: 'blueviolet' }}>
               <PersonIcon />
             </ListItemIcon>
             <ListItemText
               primary={user ? (user.name || user.username || user.email || 'Usuário') : 'Usuário'}
-              primaryTypographyProps={{ sx: { color: 'white' } }}
+              primaryTypographyProps={{ sx: { color: 'blueviolet', mt: 0.3 } }}
             />
           </ListItemButton>
         </ListItem>
@@ -510,7 +510,7 @@ export default function Dashboard() {
                 sx={{
                   mb: 3,
                   width: '100%',
-                  display: 'grid', // Troca flexbox por CSS Grid
+                  display: 'grid', 
                   gridTemplateColumns: {
                     xs: '1fr',
                     sm: 'repeat(2, 1fr)',
@@ -526,8 +526,8 @@ export default function Dashboard() {
                     sm={6}
                     md={4}
                     sx={{
-                      minWidth: 0, // Corrige overflow
-                      display: 'flex', // Força o card a preencher o espaço
+                      minWidth: 0, 
+                      display: 'flex', 
                       height: 'auto'
                     }}
                   >
