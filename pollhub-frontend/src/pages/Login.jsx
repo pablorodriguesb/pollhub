@@ -1,60 +1,113 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import FormLabel from '@mui/material/FormLabel';
-import FormControl from '@mui/material/FormControl';
-import Link from '@mui/material/Link';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
-import MuiCard from '@mui/material/Card';
-import { styled } from '@mui/material/styles';
-
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { Alert, Snackbar } from '@mui/material';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import {
+  Box,
+  CssBaseline,
+  Typography,
+  Container,
+  Paper,
+  Button,
+  TextField,
+  Link,
+  CircularProgress,
+  Snackbar,
+  Alert,
+  FormControl,
+  FormLabel,
+  InputAdornment,
+  IconButton
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { useAuth } from '../contexts/AuthContext';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import PersonIcon from '@mui/icons-material/Person';
+import LockIcon from '@mui/icons-material/Lock';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
-const Card = styled(MuiCard)(({ theme }) => ({
+// Estilos consistentes com o padrão do Dashboard
+const StyledPaper = styled(Paper)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  alignSelf: 'center',
+  background: 'linear-gradient(135deg, rgba(138,43,226,0.22) 0%, rgba(24,8,124,0.22) 100%)',
+  border: '1.5px solid rgba(255,255,255,0.12)',
+  backdropFilter: 'blur(24px)',
+  WebkitBackdropFilter: 'blur(24px)',
+  borderRadius: 24,
+  boxShadow: '0px 8px 32px 0px rgba(0,0,0,0.45)',
   width: '100%',
+  maxWidth: 420,
   padding: theme.spacing(4),
-  gap: theme.spacing(2),
   margin: 'auto',
-  boxShadow:
-    'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
-  [theme.breakpoints.up('sm')]: {
-    width: '450px',
-  },
-  ...theme.applyStyles('dark', {
-    boxShadow:
-      'hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px',
-  }),
+  marginTop: theme.spacing(4),
+  marginBottom: theme.spacing(4),
 }));
 
-const LoginContainer = styled(Stack)(({ theme }) => ({
-  height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
-  minHeight: '100%',
+// Container para a página de login
+const LoginContainer = styled(Box)(({ theme }) => ({
+  minHeight: '100vh',
+  width: '100vw',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  background: `
+    radial-gradient(
+      ellipse at 50% 50%,
+      rgba(138, 43, 226, 0.20) 0%,    /* MESMA COR DO CARD, translúcida */
+      rgba(24, 23, 31, 0.92) 70%,     /* escurecendo para fora */
+      rgba(18, 18, 28, 1) 100%
+    )
+  `,
+  backdropFilter: 'blur(10px)',
+  WebkitBackdropFilter: 'blur(10px)',
   padding: theme.spacing(2),
-  [theme.breakpoints.up('sm')]: {
-    padding: theme.spacing(4),
+}));
+
+
+// Componente estilizado para o botão
+const StyledButton = styled(Button)(({ theme }) => ({
+  backgroundColor: '#8A2BE2',
+  color: 'white',
+  borderRadius: 8,
+  padding: theme.spacing(1.5),
+  fontWeight: 500,
+  textTransform: 'none',
+  fontSize: '1rem',
+  '&:hover': {
+    backgroundColor: '#7B1FA2',
   },
-  '&::before': {
-    content: '""',
-    display: 'block',
-    position: 'absolute',
-    zIndex: -1,
-    inset: 0,
-    backgroundImage:
-      'radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))',
-    backgroundRepeat: 'no-repeat',
-    ...theme.applyStyles('dark', {
-      backgroundImage:
-        'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
-    }),
+  '&.Mui-disabled': {
+    backgroundColor: 'rgba(138, 43, 226, 0.5)',
+    color: 'rgba(255, 255, 255, 0.7)',
+  }
+}));
+
+// Componente estilizado para campos de texto
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    '&.Mui-focused fieldset': {
+      borderColor: '#8A2BE2',
+    },
+    '&:hover fieldset': {
+      borderColor: 'rgba(255, 255, 255, 0.3)',
+    },
+  },
+  '& .MuiOutlinedInput-input': {
+    padding: theme.spacing(1.5),
+    color: 'white',
+  },
+  '& .MuiInputLabel-root': {
+    color: 'rgba(255, 255, 255, 0.7)',
+    '&.Mui-focused': {
+      color: '#8A2BE2',
+    },
+  },
+  '& .MuiInputAdornment-root': {
+    color: 'rgba(255, 255, 255, 0.5)',
   },
 }));
 
@@ -78,6 +131,13 @@ export default function Login() {
     severity: 'success'
   });
 
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -91,6 +151,14 @@ export default function Login() {
       ...formData,
       [name]: value
     });
+    
+    // Limpa os erros ao digitar
+    if (errors[name]?.error) {
+      setErrors({
+        ...errors,
+        [name]: { error: false, message: '' }
+      });
+    }
   };
 
   const validateInputs = () => {
@@ -122,6 +190,8 @@ export default function Login() {
       return;
     }
     
+    setLoading(true);
+    
     try {
       // Usando a função login do AuthContext
       const success = await login({
@@ -152,104 +222,212 @@ export default function Login() {
         message: error.response?.data?.message || 'Usuário ou senha inválidos.',
         severity: 'error'
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <>
-      <CssBaseline enableColorScheme />
-      <LoginContainer direction="column" justifyContent="space-between">
-        <Card variant="outlined">
-          <Box sx={{
-            width: 48,
-            height: 48,
-            borderRadius: "50%",
-            background: "#1976d2",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            mb: 1
-          }}>
-            <Typography variant="h4" sx={{ color: "#fff" }}>📊</Typography>
-          </Box>
-          <Typography
-            component="h1"
-            variant="h4"
-            sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
-          >
-            Entrar
-          </Typography>
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
-          >
-            <FormControl>
-              <FormLabel htmlFor="username">Nome de usuário</FormLabel>
-              <TextField
-                autoComplete="username"
-                name="username"
-                required
-                fullWidth
-                id="username"
-                placeholder="usuario123"
-                value={formData.username}
-                onChange={handleInputChange}
-                error={errors.username.error}
-                helperText={errors.username.message}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="password">Senha</FormLabel>
-              <TextField
-                required
-                fullWidth
-                name="password"
-                placeholder="••••••"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                variant="outlined"
-                value={formData.password}
-                onChange={handleInputChange}
-                error={errors.password.error}
-                helperText={errors.password.message}
-              />
-            </FormControl>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-            >
-              Entrar
-            </Button>
-            <Typography sx={{ textAlign: 'center' }}>
-              Não tem uma conta?{' '}
-              <Link
-                href="/register"
-                variant="body2"
-                sx={{ alignSelf: 'center' }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate('/register');
+      <CssBaseline />
+      <LoginContainer>
+        <Container maxWidth="sm">
+          <StyledPaper elevation={6}>
+            {/* Cabeçalho do Login */}
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center',
+              justifyContent: 'center',
+              mb: 3
+            }}>
+              <Box sx={{
+                width: 70,
+                height: 70,
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 2
+              }}>
+                <BarChartIcon fontSize="large" sx={{ color: '#8A2BE2', fontSize: '2rem' }} />
+              </Box>
+              <Typography 
+                variant="h4" 
+                component="h1" 
+                sx={{ 
+                  color: 'blueviolet',
+                  fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+                  fontWeight: 400,
+                  letterSpacing: '0.5px',
+                  fontSize: '1.8rem'
                 }}
               >
-                Cadastre-se
-              </Link>
-            </Typography>
-          </Box>
-        </Card>
-        <Snackbar 
-          open={snackbar.open} 
-          autoHideDuration={6000} 
-          onClose={handleClose}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        >
-          <Alert onClose={handleClose} severity={snackbar.severity} sx={{ width: '100%' }}>
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
+                PollHub
+              </Typography>
+              <Typography 
+                variant="h6" 
+                component="h2" 
+                sx={{ 
+                  color: 'white',
+                  fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+                  fontWeight: 300,
+                  mt: 1
+                }}
+              >
+                Entre na sua conta
+              </Typography>
+            </Box>
+
+            {/* Formulário de Login */}
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              sx={{ display: 'flex', flexDirection: 'column', gap: 3, width: '100%' }}
+            >
+              <FormControl fullWidth>
+                <FormLabel 
+                  htmlFor="username" 
+                  sx={{ 
+                    color: 'rgba(255, 255, 255, 0.7)',
+                    mb: 1,
+                    fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif'
+                  }}
+                >
+                  Nome de usuário
+                </FormLabel>
+                <StyledTextField
+                sx={{ mb: -1}}
+                  variant="outlined"
+                  id="username"
+                  name="username"
+                  placeholder="Digite seu nome de usuário"
+                  fullWidth
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  error={errors.username.error}
+                  helperText={errors.username.message}
+                  autoComplete="username"
+                  required
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PersonIcon sx={{ color: 'rgba(255, 255, 255, 0.5)' }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </FormControl>
+
+              <FormControl fullWidth>
+                <FormLabel 
+                  htmlFor="password" 
+                  sx={{ 
+                    color: 'rgba(255, 255, 255, 0.7)',
+                    mb: 1,
+                    fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif'
+                  }}
+                >
+                  Senha
+                </FormLabel>
+                <StyledTextField
+                  variant="outlined"
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Digite sua senha"
+                  fullWidth
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  error={errors.password.error}
+                  helperText={errors.password.message}
+                  autoComplete="current-password"
+                  required
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LockIcon sx={{ color: 'rgba(255, 255, 255, 0.5)' }} />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleTogglePasswordVisibility}
+                          edge="end"
+                          sx={{ color: 'rgba(255, 255, 255, 0.5)' }}
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </FormControl>
+
+              <StyledButton
+                type="submit"
+                fullWidth
+                variant="contained"
+                disabled={loading}
+                sx={{ mt: 2 }}
+              >
+                {loading ? (
+                  <CircularProgress size={24} sx={{ color: 'white' }} />
+                ) : (
+                  'Entrar'
+                )}
+              </StyledButton>
+            </Box>
+
+            {/* Links adicionais */}
+            <Box sx={{ mt: 3, textAlign: 'center' }}>
+              <Typography sx={{ 
+                color: 'rgba(255, 255, 255, 0.7)',
+                fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+                fontSize: '0.9rem'
+              }}>
+                Não tem uma conta?{' '}
+                <Link 
+                  component={RouterLink} 
+                  to="/register" 
+                  sx={{ 
+                    color: '#8A2BE2',
+                    textDecoration: 'none',
+                    '&:hover': {
+                      textDecoration: 'underline'
+                    }
+                  }}
+                >
+                  Cadastre-se
+                </Link>
+              </Typography>
+            </Box>
+          </StyledPaper>
+        </Container>
       </LoginContainer>
+
+      {/* Snackbar para notificações */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleClose} 
+          severity={snackbar.severity} 
+          sx={{ 
+            width: '100%',
+            '& .MuiAlert-message': {
+              fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+            }
+          }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 }
