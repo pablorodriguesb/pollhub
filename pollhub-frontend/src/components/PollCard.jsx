@@ -172,7 +172,7 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
                   lineHeight: '1.2rem',
                   maxHeight: '2.4rem',
                   flexGrow: 0,
-                  maxHeight: '2.4rem'
+                  minHeight: '2.7em'
                 }}
               >
                 {poll.title}
@@ -280,6 +280,7 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
               onChange={handleOptionChange}
             >
               {poll.options.map((option) => (
+
                 <FormControlLabel
                   key={option.id}
                   value={option.id}
@@ -296,9 +297,28 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
                     />
                   }
                   label={
-                    <Typography sx={{ fontSize: '0.85rem', color: 'white' }}>
-                      {option.text}
-                    </Typography>
+                    <Box
+                      sx={{
+                        maxWidth: { xs: 120, sm: 180, md: 240 },
+                        width: '100%',
+                        display: 'block'
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: { xs: '0.8rem', sm: '0.85rem' },
+                          color: 'white',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          width: '100%',
+                          display: 'block'
+                        }}
+                        title={option.text}
+                      >
+                        {option.text}
+                      </Typography>
+                    </Box>
                   }
                   sx={{ mb: 0.25, ml: -0.5 }}
                 />
@@ -396,39 +416,107 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
             </Button>
           ) : (
             <Button
-              startIcon={<UndoIcon sx={{ fontSize: '1rem' }} />}
-              variant="outlined"
-              fullWidth
-              onClick={() => onToggleResults && onToggleResults(poll.id, false)}
-              sx={{
-                borderColor: 'rgba(138, 43, 226, 0.5)',
-                color: 'rgba(255, 255, 255, 0.9)',
-                '&:hover': {
-                  borderColor: '#8A2BE2',
-                  backgroundColor: 'rgba(138, 43, 226, 0.1)',
-                },
-                textTransform: 'none',
-                fontWeight: 500,
-                fontSize: '0.85rem',
-                borderRadius: 1.5,
-                padding: '6px 12px',
-                mb: 1,
-                height: '32px'
-              }}
-            >
-              Voltar para votação
-            </Button>
+  startIcon={<UndoIcon sx={{ fontSize: '1rem' }} />}
+  variant="outlined"
+  fullWidth
+  onClick={() => onToggleResults && onToggleResults(poll.id, false)}
+  sx={{
+    borderColor: 'rgba(138, 43, 226, 0.5)',
+    color: 'rgba(255, 255, 255, 0.9)',
+    '&:hover': {
+      borderColor: '#8A2BE2',
+      backgroundColor: 'rgba(138, 43, 226, 0.1)',
+    },
+    textTransform: 'none',
+    fontWeight: 500,
+    fontSize: '0.85rem',
+    borderRadius: 1.5,
+    padding: '6px 12px',
+    mb: 1,
+    height: '32px'
+  }}
+>
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      width: '100%',
+      overflow: 'hidden'
+    }}
+  >
+    <span
+      style={{
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        width: '100%',
+        display: 'block',
+        textAlign: 'center'
+      }}
+      title="Voltar para votação"
+    >
+      Voltar para votação
+    </span>
+  </Box>
+</Button>
+
           )}
 
-<Button
-    startIcon={<InfoIcon sx={{ fontSize: '1rem' }} />}
+          <Button
+            startIcon={<InfoIcon sx={{ fontSize: '1rem' }} />}
+            variant="outlined"
+            fullWidth
+            size="small"
+            onClick={onVerDetalhes}
+            sx={{
+              borderColor: '#1976d2',
+              color: '#1976d2',
+              '&:hover': {
+                borderColor: '#8A2BE2',
+                backgroundColor: 'rgba(138, 43, 226, 0.1)',
+              },
+              textTransform: 'none',
+              fontWeight: 500,
+              fontSize: '0.85rem',
+              borderRadius: 1.5,
+              padding: '6px 12px',
+              height: '32px',
+              mt: 1
+            }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%',
+                overflow: 'hidden'
+              }}
+            >
+              <span
+                style={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  width: '100%',
+                  display: 'block',
+                  textAlign: 'center'
+                }}
+                title="Ver Enquete Completa"
+              >
+                Ver Enquete Completa
+              </span>
+            </Box>
+          </Button>
+
+          <Box sx={{ width: '100%', mt: 0.5 }}>
+  <Button
+    startIcon={<BarChartIcon sx={{ fontSize: '1rem' }} />}
     variant="outlined"
     fullWidth
-    size="small"
-    onClick={onVerDetalhes}
+    onClick={() => navigate(`/polls/${poll.id}/results`)}
     sx={{
-      borderColor: '#1976d2',
-      color: '#1976d2',
+      borderColor: 'rgba(138, 43, 226, 0.5)',
+      color: 'rgba(255, 255, 255, 0.9)',
       '&:hover': {
         borderColor: '#8A2BE2',
         backgroundColor: 'rgba(138, 43, 226, 0.1)',
@@ -438,66 +526,84 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
       fontSize: '0.85rem',
       borderRadius: 1.5,
       padding: '6px 12px',
-      height: '32px',
-      mt: 1 // Espaço acima se quiser separar dos outros
+      mb: 0.75,
+      height: '32px'
     }}
   >
-    Ver Enquete Completa
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        width: '100%',
+        overflow: 'hidden'
+      }}
+    >
+      <span
+        style={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          width: '100%',
+          display: 'block',
+          textAlign: 'center'
+        }}
+        title="Detalhes dos Resultados"
+      >
+        Detalhes dos Resultados
+      </span>
+    </Box>
   </Button>
 
-          <Box sx={{ width: '100%', mt: 0.5 }}>
-            <Button
-              startIcon={<BarChartIcon sx={{ fontSize: '1rem' }} />}
-              variant="outlined"
-              fullWidth
-              onClick={() => navigate(`/polls/${poll.id}/results`)}
-              sx={{
-                borderColor: 'rgba(138, 43, 226, 0.5)',
-                color: 'rgba(255, 255, 255, 0.9)',
-                '&:hover': {
-                  borderColor: '#8A2BE2',
-                  backgroundColor: 'rgba(138, 43, 226, 0.1)',
-                },
-                textTransform: 'none',
-                fontWeight: 500,
-                fontSize: '0.85rem',
-                borderRadius: 1.5,
-                padding: '6px 12px',
-                mb: 0.75,
-                height: '32px'
-              }}
-            >
-              Detalhes dos Resultados
-            </Button>
+  {isOwnerOrAdmin && (
+    <Button
+      startIcon={<HowToVoteIcon sx={{ fontSize: '1rem' }} />}
+      variant="outlined"
+      fullWidth
+      onClick={() => navigate(`/votes/poll/${poll.id}`)}
+      sx={{
+        borderColor: 'rgba(138, 43, 226, 0.5)',
+        color: 'rgba(255, 255, 255, 0.9)',
+        '&:hover': {
+          borderColor: '#8A2BE2',
+          backgroundColor: 'rgba(138, 43, 226, 0.1)',
+        },
+        textTransform: 'none',
+        fontWeight: 500,
+        fontSize: '0.85rem',
+        borderRadius: 1.5,
+        padding: '6px 12px',
+        height: '32px'
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          width: '100%',
+          overflow: 'hidden'
+        }}
+      >
+        <span
+          style={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            width: '100%',
+            display: 'block',
+            textAlign: 'center'
+          }}
+          title="Detalhes dos Votos"
+        >
+          Detalhes dos Votos
+        </span>
+      </Box>
+    </Button>
+  )}
+</Box>
 
-            {isOwnerOrAdmin && (
-              <Button
-                startIcon={<HowToVoteIcon sx={{ fontSize: '1rem' }} />}
-                variant="outlined"
-                fullWidth
-                onClick={() => navigate(`/votes/poll/${poll.id}`)}
-                sx={{
-                  borderColor: 'rgba(138, 43, 226, 0.5)',
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  '&:hover': {
-                    borderColor: '#8A2BE2',
-                    backgroundColor: 'rgba(138, 43, 226, 0.1)',
-                  },
-                  textTransform: 'none',
-                  fontWeight: 500,
-                  fontSize: '0.85rem',
-                  borderRadius: 1.5,
-                  padding: '6px 12px',
-                  height: '32px'
-                }}
-              >
-                Detalhes dos Votos
-              </Button>
-            )}
-          </Box>
-        
-       
-</CardActions>
+
+
+        </CardActions>
 
       </Card>
 
@@ -541,7 +647,7 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
           Excluir
         </MenuItem>
       </Menu>
-      
+
 
       {/* Dialog de confirmação de exclusão */}
       <Dialog

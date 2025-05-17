@@ -27,7 +27,7 @@ const AppRoutes = () => {
 
         <Route path="/polls/:id/results" element={<PollResults />} />
         <Route path="/votes/poll/:pollId" element={<PollVotes />} />
-
+        
         <Route element={<ProtectedRoute />}>
           <Route path="/users/:username" element={<UserProfile />} />
         </Route>

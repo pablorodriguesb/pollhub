@@ -522,6 +522,9 @@ export default function Dashboard() {
                   <Grid
                     item
                     key={poll.id}
+                    xs={12}
+                    sm={6}
+                    md={4}
                     sx={{
                       minWidth: 0, // Corrige overflow
                       display: 'flex', // Força o card a preencher o espaço
