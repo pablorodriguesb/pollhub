@@ -148,7 +148,7 @@ export default function PollResults() {
                         ml: 1,
                         fontSize: '1.3rem'
                     }}>
-                        Poll Results
+                        Resultados Registrados
                     </Typography>
                 </Toolbar>
             </StyledAppBar>
