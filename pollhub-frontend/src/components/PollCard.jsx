@@ -142,7 +142,7 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
             transform: 'translateY(-4px)',
             boxShadow: '0px 6px 10px rgba(0, 0, 0, 0.3)',
           },
-          width: '100%', // Remove maxWidth e minWidth
+          width: '100%',
         }}
       >
         <CardContent sx={{ flexGrow: 1, pb: 1, pt: 2, px: 2, minHeight: 0 }}>
@@ -257,19 +257,55 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
             </Typography>
           </Box>
 
-          <Chip
-            label={`${totalVotes} ${totalVotes === 1 ? 'voto' : 'votos'}`}
-            size="small"
-            color="primary"
-            variant="outlined"
+          <Box
             sx={{
-              mb: 1.5,
-              height: '20px',
-              borderColor: 'rgba(138, 43, 226, 0.5)',
-              color: 'rgba(255, 255, 255, 0.9)',
-              fontSize: '0.7rem'
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              mb: 1.2,
             }}
-          />
+          >
+            {/* Chip de votos */}
+            <Chip
+              label={`${totalVotes} ${totalVotes === 1 ? 'voto' : 'votos'}`}
+              size="small"
+              color="primary"
+              variant="outlined"
+              sx={{
+                height: 20,
+                fontSize: '0.7rem',
+                px: 1.2,
+                borderRadius: 1,
+                fontWeight: 500,
+                borderColor: 'rgba(138, 43, 226, 0.25)',
+                color: 'rgba(255, 255, 255, 0.8)',
+                backgroundColor: 'rgba(138, 43, 226, 0.08)',
+              }}
+            />
+
+            {/* Chip de status*/}
+            <Chip
+              label={poll.isPublic ? 'PUBLICA' : 'PRIVADA'}
+              size="small"
+              sx={{
+                backgroundColor: poll.isPublic
+                  ? 'rgba(25, 118, 210, 0.12)'
+                  : 'rgba(211, 47, 47, 0.12)',
+                color: poll.isPublic ? '#1976d2' : '#d32f2f',
+                fontWeight: 500,
+                height: 20,
+                fontSize: '0.7rem',
+                px: 1.2,
+                borderRadius: 1,
+                boxShadow: 'none',
+                textTransform: 'uppercase',
+                letterSpacing: 0.3,
+              }}
+            />
+          </Box>
+
+
+
 
           <Divider sx={{ my: 1, backgroundColor: 'rgba(255, 255, 255, 0.12)' }} />
 
@@ -416,49 +452,49 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
             </Button>
           ) : (
             <Button
-  startIcon={<UndoIcon sx={{ fontSize: '1rem' }} />}
-  variant="outlined"
-  fullWidth
-  onClick={() => onToggleResults && onToggleResults(poll.id, false)}
-  sx={{
-    borderColor: 'rgba(138, 43, 226, 0.5)',
-    color: 'rgba(255, 255, 255, 0.9)',
-    '&:hover': {
-      borderColor: '#8A2BE2',
-      backgroundColor: 'rgba(138, 43, 226, 0.1)',
-    },
-    textTransform: 'none',
-    fontWeight: 500,
-    fontSize: '0.85rem',
-    borderRadius: 1.5,
-    padding: '6px 12px',
-    mb: 1,
-    height: '32px'
-  }}
->
-  <Box
-    sx={{
-      display: 'flex',
-      alignItems: 'center',
-      width: '100%',
-      overflow: 'hidden'
-    }}
-  >
-    <span
-      style={{
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        width: '100%',
-        display: 'block',
-        textAlign: 'center'
-      }}
-      title="Voltar para votação"
-    >
-      Voltar para votação
-    </span>
-  </Box>
-</Button>
+              startIcon={<UndoIcon sx={{ fontSize: '1rem' }} />}
+              variant="outlined"
+              fullWidth
+              onClick={() => onToggleResults && onToggleResults(poll.id, false)}
+              sx={{
+                borderColor: 'rgba(138, 43, 226, 0.5)',
+                color: 'rgba(255, 255, 255, 0.9)',
+                '&:hover': {
+                  borderColor: '#8A2BE2',
+                  backgroundColor: 'rgba(138, 43, 226, 0.1)',
+                },
+                textTransform: 'none',
+                fontWeight: 500,
+                fontSize: '0.85rem',
+                borderRadius: 1.5,
+                padding: '6px 12px',
+                mb: 1,
+                height: '32px'
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '100%',
+                  overflow: 'hidden'
+                }}
+              >
+                <span
+                  style={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    width: '100%',
+                    display: 'block',
+                    textAlign: 'center'
+                  }}
+                  title="Voltar para votação"
+                >
+                  Voltar para votação
+                </span>
+              </Box>
+            </Button>
 
           )}
 
@@ -509,97 +545,97 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
           </Button>
 
           <Box sx={{ width: '100%', mt: 0.5 }}>
-  <Button
-    startIcon={<BarChartIcon sx={{ fontSize: '1rem' }} />}
-    variant="outlined"
-    fullWidth
-    onClick={() => navigate(`/polls/${poll.id}/results`)}
-    sx={{
-      borderColor: 'rgba(138, 43, 226, 0.5)',
-      color: 'rgba(255, 255, 255, 0.9)',
-      '&:hover': {
-        borderColor: '#8A2BE2',
-        backgroundColor: 'rgba(138, 43, 226, 0.1)',
-      },
-      textTransform: 'none',
-      fontWeight: 500,
-      fontSize: '0.85rem',
-      borderRadius: 1.5,
-      padding: '6px 12px',
-      mb: 0.75,
-      height: '32px'
-    }}
-  >
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        width: '100%',
-        overflow: 'hidden'
-      }}
-    >
-      <span
-        style={{
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-          width: '100%',
-          display: 'block',
-          textAlign: 'center'
-        }}
-        title="Detalhes dos Resultados"
-      >
-        Detalhes dos Resultados
-      </span>
-    </Box>
-  </Button>
+            <Button
+              startIcon={<BarChartIcon sx={{ fontSize: '1rem' }} />}
+              variant="outlined"
+              fullWidth
+              onClick={() => navigate(`/polls/${poll.id}/results`)}
+              sx={{
+                borderColor: 'rgba(138, 43, 226, 0.5)',
+                color: 'rgba(255, 255, 255, 0.9)',
+                '&:hover': {
+                  borderColor: '#8A2BE2',
+                  backgroundColor: 'rgba(138, 43, 226, 0.1)',
+                },
+                textTransform: 'none',
+                fontWeight: 500,
+                fontSize: '0.85rem',
+                borderRadius: 1.5,
+                padding: '6px 12px',
+                mb: 0.75,
+                height: '32px'
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '100%',
+                  overflow: 'hidden'
+                }}
+              >
+                <span
+                  style={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    width: '100%',
+                    display: 'block',
+                    textAlign: 'center'
+                  }}
+                  title="Detalhes dos Resultados"
+                >
+                  Detalhes dos Resultados
+                </span>
+              </Box>
+            </Button>
 
-  {isOwnerOrAdmin && (
-    <Button
-      startIcon={<HowToVoteIcon sx={{ fontSize: '1rem' }} />}
-      variant="outlined"
-      fullWidth
-      onClick={() => navigate(`/votes/poll/${poll.id}`)}
-      sx={{
-        borderColor: 'rgba(138, 43, 226, 0.5)',
-        color: 'rgba(255, 255, 255, 0.9)',
-        '&:hover': {
-          borderColor: '#8A2BE2',
-          backgroundColor: 'rgba(138, 43, 226, 0.1)',
-        },
-        textTransform: 'none',
-        fontWeight: 500,
-        fontSize: '0.85rem',
-        borderRadius: 1.5,
-        padding: '6px 12px',
-        height: '32px'
-      }}
-    >
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          width: '100%',
-          overflow: 'hidden'
-        }}
-      >
-        <span
-          style={{
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            width: '100%',
-            display: 'block',
-            textAlign: 'center'
-          }}
-          title="Detalhes dos Votos"
-        >
-          Detalhes dos Votos
-        </span>
-      </Box>
-    </Button>
-  )}
-</Box>
+            {isOwnerOrAdmin && (
+              <Button
+                startIcon={<HowToVoteIcon sx={{ fontSize: '1rem' }} />}
+                variant="outlined"
+                fullWidth
+                onClick={() => navigate(`/votes/poll/${poll.id}`)}
+                sx={{
+                  borderColor: 'rgba(138, 43, 226, 0.5)',
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  '&:hover': {
+                    borderColor: '#8A2BE2',
+                    backgroundColor: 'rgba(138, 43, 226, 0.1)',
+                  },
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  fontSize: '0.85rem',
+                  borderRadius: 1.5,
+                  padding: '6px 12px',
+                  height: '32px'
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    width: '100%',
+                    overflow: 'hidden'
+                  }}
+                >
+                  <span
+                    style={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      width: '100%',
+                      display: 'block',
+                      textAlign: 'center'
+                    }}
+                    title="Detalhes dos Votos"
+                  >
+                    Detalhes dos Votos
+                  </span>
+                </Box>
+              </Button>
+            )}
+          </Box>
 
 
 
