@@ -83,7 +83,7 @@ export default function PollVotes() {
   const { pollId } = useParams();
   const navigate = useNavigate();
   const { logout } = useAuth();
-  
+
   // Estado para gerenciar UI e dados
   const [isLoading, setIsLoading] = useState(true);
   const [votes, setVotes] = useState([]);
@@ -106,7 +106,7 @@ export default function PollVotes() {
       // Buscar os votos da enquete usando o endpoint apropriado
       const votesResponse = await api.get(`/api/votes/poll/${pollId}`);
       setVotes(votesResponse.data);
-      
+
       // Opcionalmente, buscar informações da enquete para exibir o título
       try {
         const pollResponse = await api.get(`/api/polls/${pollId}`);
@@ -115,16 +115,16 @@ export default function PollVotes() {
       } catch (error) {
         console.error('Erro ao buscar detalhes da enquete:', error);
       }
-      
+
     } catch (error) {
       console.error('Erro ao buscar votos:', error);
-      
+
       // Se receber erro 401 (não autorizado), redirecionar para login
       if (error.response?.status === 401) {
         logout();
         navigate('/login');
       }
-      
+
       setSnackbar({
         open: true,
         message: error.response?.data?.message || 'Erro ao carregar dados',
@@ -149,7 +149,7 @@ export default function PollVotes() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <CssBaseline />
-      
+
       {/* AppBar fixo no topo */}
       <StyledAppBar position="fixed">
         <Toolbar sx={{
@@ -229,11 +229,17 @@ export default function PollVotes() {
                   ml: 1,
                   fontSize: '1.5rem',
                   textAlign: 'left',
+                  textOverflow: 'ellipsis',
+                  display: '-webkit-box',
+                  WebkitBoxOrient: 'vertical',
+                  WebkitLineClamp: 2,
+                  overflow: 'hidden',
+                  maxHeight: '2.4em',
                 }}
               >
                 {pollTitle || 'Votos Registrados'}
               </Typography>
-                
+
               {/* Resumo curto da descrição (primeiras 80 caracteres) */}
               {pollDescription && (
                 <Typography
@@ -250,21 +256,19 @@ export default function PollVotes() {
                     WebkitBoxOrient: 'vertical',
                   }}
                 >
-                  {pollDescription.length > 80
-                    ? `${pollDescription.substring(0, 80)}...`
-                    : pollDescription}
+                  {pollDescription || '\u00A0'}
                 </Typography>
               )}
-                
+
               <Divider sx={{ my: 2, backgroundColor: 'rgba(255, 255, 255, 0.12)' }} />
 
               {/* Tabela de votos */}
               {votes.length > 0 ? (
-                <Box sx={{ 
-                  p: 2, 
-                  backgroundColor: 'rgba(255, 255, 255, 0.03)', 
+                <Box sx={{
+                  p: 2,
+                  backgroundColor: 'rgba(255, 255, 255, 0.03)',
                   borderRadius: 2,
-                  mb: 2 
+                  mb: 2
                 }}>
                   <Typography
                     variant="subtitle1"
@@ -277,8 +281,8 @@ export default function PollVotes() {
                   >
                     Registro detalhado de votos ({votes.length})
                   </Typography>
-                    
-                  <StyledTableContainer component={Box} sx={{ 
+
+                  <StyledTableContainer component={Box} sx={{
                     overflow: 'auto',
                     backgroundColor: 'transparent',
                     borderRadius: 2,
@@ -296,7 +300,7 @@ export default function PollVotes() {
                       <TableBody>
                         {votes.map((vote, index) => (
                           <TableRow key={index}>
-                            <TableCell sx={{ 
+                            <TableCell sx={{
                               maxWidth: '200px',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
@@ -304,7 +308,7 @@ export default function PollVotes() {
                             }}>
                               {vote.username}
                             </TableCell>
-                            <TableCell sx={{ 
+                            <TableCell sx={{
                               maxWidth: '250px',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',

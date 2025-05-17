@@ -204,7 +204,13 @@ export default function PollResults() {
                                         mb: 1,
                                         ml: 1,
                                         fontSize: '1.5rem',
+                                        textOverflow: 'ellipsis',
                                         textAlign: 'left',
+                                        display: '-webkit-box',
+                                        WebkitBoxOrient: 'vertical',
+                                        WebkitLineClamp: 2,
+                                        overflow: 'hidden',
+                                        maxHeight: '2.4em', 
                                     }}
                                 >
                                     {poll?.title || 'Resultados da Enquete'}
@@ -447,7 +453,7 @@ export default function PollResults() {
                             px: 3,
                             pt: 2,
                             pb: 1,
-                            wordBreak: 'break-all'
+                            wordBreak: 'break-all',
                         }}
                     >
                         {poll?.title}

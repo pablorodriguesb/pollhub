@@ -145,7 +145,7 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
           width: '100%',
         }}
       >
-        <CardContent sx={{ flexGrow: 1, pb: 1, pt: 2, px: 2, minHeight: 0 }}>
+        <CardContent sx={{ flexGrow: 1, pb: 1, pt: 2, px: 2, minHeight: 0, height: '100%' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1, minWidth: 0 }}>
             {/* Título */}
             <Tooltip title={poll.title} placement="top" arrow>
@@ -163,7 +163,8 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
                   maxWidth: isOwner ? 'calc(100% - 32px)' : '100%',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
-                  display: '-webkit-box',
+                  display: 'flex',
+                  flexDirection: 'column',
                   WebkitLineClamp: 2,
                   WebkitBoxOrient: 'vertical',
                   whiteSpace: 'normal',
@@ -172,7 +173,7 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
                   lineHeight: '1.2rem',
                   maxHeight: '2.4rem',
                   flexGrow: 0,
-                  minHeight: '2.7em'
+                  minHeight: '2.4em'
                 }}
               >
                 {poll.title}
@@ -206,14 +207,16 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
                 mb: 1,
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                display: '-webkit-box',
+                display: 'flex',
+                flexDirection: 'column',
                 WebkitBoxOrient: 'vertical',
                 WebkitLineClamp: 2,
                 whiteSpace: 'normal',
                 wordBreak: 'break-word',
                 lineHeight: '1.1rem',
                 flexGrow: 0,
-                maxHeight: '2.2rem'
+                maxHeight: '2.4rem',
+                minHeight: '2.4em'
               }}
             >
               {poll.description}
@@ -293,6 +296,7 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
                   : 'rgba(211, 47, 47, 0.12)',
                 color: poll.isPublic ? '#1976d2' : '#d32f2f',
                 fontWeight: 500,
+                display: { xs: 'none', sm: 'inline-flex' },
                 height: 20,
                 fontSize: '0.7rem',
                 px: 1.2,
