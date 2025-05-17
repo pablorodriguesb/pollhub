@@ -44,9 +44,9 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@Valid @RequestBody UserDTO userDTO) {
         try {
-            User user = convertToEntity(userDTO);
+            User user = userService.convertToEntity(userDTO);
             User createdUser = userService.registerUser(user);
-            return ResponseEntity.ok(convertToResponseDTO(createdUser));
+            return ResponseEntity.ok(userService.convertToResponseDTO(createdUser));
         } catch (UserAlreadyExistsException e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -58,7 +58,7 @@ public class UserController {
     @GetMapping("/username/{username}")
     public ResponseEntity<UserResponseDTO> getUserByUsername(@PathVariable String username) {
         return userService.findByUsername(username)
-                .map(this::convertToResponseDTO)
+                .map(userService::convertToResponseDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -105,23 +105,5 @@ public class UserController {
         return ResponseEntity.ok(polls.stream()
                 .map(pollService::convertToPollDTO)
                 .collect(Collectors.toList()));
-    }
-
-    // metodo auxiliar para conversao de User para UserResponseDTO
-    private UserResponseDTO convertToResponseDTO(User user) {
-        UserResponseDTO dto = new UserResponseDTO();
-        dto.setUsername(user.getUsername());
-        dto.setEmail(user.getEmail());
-        return dto;
-    }
-
-
-    // metodo auxiliar para converter dto para user
-    private User convertToEntity(UserDTO userDTO) {
-        User user = new User();
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword()); // a senha sera criptografada no service
-        return user;
     }
 }

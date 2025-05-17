@@ -1,5 +1,7 @@
 package com.pablorodriguesb.pollhub.service;
 
+import com.pablorodriguesb.pollhub.dto.UserDTO;
+import com.pablorodriguesb.pollhub.dto.UserResponseDTO;
 import com.pablorodriguesb.pollhub.exception.UserAlreadyExistsException;
 import com.pablorodriguesb.pollhub.model.User;
 import com.pablorodriguesb.pollhub.repository.UserRepository;
@@ -60,13 +62,30 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // busca usuario pelo email
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmailIgnoreCase(email);
-    }
-
     // busca usuario pelo username
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsernameIgnoreCase(username);
     }
+
+    // metodos auxiliares
+    // converter dto para user
+    public User convertToEntity(UserDTO userDTO) {
+        User user = new User();
+        user.setUsername(userDTO.getUsername());
+        user.setEmail(userDTO.getEmail());
+        user.setPassword(userDTO.getPassword()); // a senha sera criptografada no service
+        return user;
+    }
+
+
+    // conversao de User para UserResponseDTO
+    public UserResponseDTO convertToResponseDTO(User user) {
+        UserResponseDTO dto = new UserResponseDTO();
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        return dto;
+    }
+
+
+
 }

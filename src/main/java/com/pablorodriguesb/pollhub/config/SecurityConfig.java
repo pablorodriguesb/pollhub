@@ -1,8 +1,5 @@
 package com.pablorodriguesb.pollhub.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pablorodriguesb.pollhub.security.JwtAuthenticationEntryPoint;
 import com.pablorodriguesb.pollhub.security.JwtRequestFilter;
 import com.pablorodriguesb.pollhub.service.CustomUserDetailsService;

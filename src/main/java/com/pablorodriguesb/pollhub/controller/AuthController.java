@@ -32,9 +32,6 @@ public class AuthController {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
-    @Autowired
-    private UserService userService;
-
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody UserDTO userDTO) throws
             Exception {
@@ -65,13 +62,5 @@ public class AuthController {
         public String getToken() {
             return token;
         }
-    }
-
-    // conversao DTO
-    private UserResponseDTO convertToResponseDTO(User user) {
-        UserResponseDTO dto = new UserResponseDTO();
-        dto.setUsername(user.getUsername());
-        dto.setEmail(user.getEmail());
-        return dto;
     }
 }
