@@ -1,0 +1,14 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  exemplo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Só um exemplo
+        run: echo "CI/CD funcionando!"
