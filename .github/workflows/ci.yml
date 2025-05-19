@@ -7,8 +7,22 @@ on:
     branches: [main]
 
 jobs:
-  exemplo:
+  backend:
+    name: backend - Build e Teste
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Só um exemplo
-        run: echo "CI/CD funcionando!"
+      - name: Checkout codigo
+        uses: actions/checkout@v4
+
+      - name: Dar permissao ao mvnw
+        run: chmod +x mvnw
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build e Teste(Maven)
+        run: ./mvnw clean verify
