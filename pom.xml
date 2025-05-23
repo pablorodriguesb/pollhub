@@ -61,7 +61,6 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
-			<version>2.2.224</version>
 		</dependency>
 		<!-- JWT -->
 		<dependency>
@@ -160,10 +159,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.5.3</version>
 				<configuration>
-					<argLine>-Djdk.module.illegalAccess=permit</argLine>
-					<includes>
-						<include>**/*Tests.java</include>
-					</includes>
+					<argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
 					<excludes>
 						<exclude>**/*IntegrationTest.java</exclude>
 					</excludes>
