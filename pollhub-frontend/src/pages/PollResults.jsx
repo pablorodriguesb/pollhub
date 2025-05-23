@@ -210,7 +210,7 @@ export default function PollResults() {
                                         WebkitBoxOrient: 'vertical',
                                         WebkitLineClamp: 2,
                                         overflow: 'hidden',
-                                        maxHeight: '2.4em', 
+                                        maxHeight: '2.4em',
                                     }}
                                 >
                                     {poll?.title || 'Resultados da Enquete'}
@@ -248,79 +248,70 @@ export default function PollResults() {
 
                             <Divider sx={{ my: 2, backgroundColor: 'rgba(255, 255, 255, 0.12)' }} />
 
-                            {/* Gráfico de resultados - Exibição visual dos resultados */}
-                            <Box sx={{ mb: 4, p: 2, backgroundColor: 'rgba(255, 255, 255, 0.03)', borderRadius: 2 }}>
-                                <Typography
-                                    variant="subtitle1"
-                                    sx={{
-                                        fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
-                                        color: 'blueviolet',
-                                        mb: 2,
-                                        fontWeight: 500,
-                                    }}
-                                >
-                                    Distribuição de votos
-                                </Typography>
-
-                                <Box sx={{ height: '200px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', mt: 2 }}>
-                                    {poll?.results?.map((result, index) => {
-                                        const percentage = totalVotes > 0 ? (result.votes / totalVotes) * 100 : 0;
-
-                                        return (
-                                            <Box
-                                                key={result.id || index}
+                            {/* Gráfico de barras verticais - apenas este bloco! */}
+                            <Box
+                                sx={{
+                                    height: '200px',
+                                    display: 'flex',
+                                    alignItems: 'flex-end',
+                                    justifyContent: 'space-between',
+                                    mt: 2,
+                                    columnGap: 1,
+                                }}
+                            >
+                                {poll?.results?.map((result, index) => {
+                                    const percentage = totalVotes > 0 ? (result.votes / totalVotes) * 100 : 0;
+                                    return (
+                                        <Box
+                                            key={result.id || index}
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column-reverse',
+                                                alignItems: 'center',
+                                                width: `${100 / (poll.results.length || 1)}%`,
+                                                height: '100%',
+                                            }}
+                                        >
+                                           {/* Porcentagem acima da barra */}
+<Typography
+  variant="body2"
+  sx={{
+    color: 'white',
+    fontWeight: 'bold',
+    mb: 0.5, // margin bottom para afastar da barra
+    textAlign: 'center',
+  }}
+>
+  {Math.round(percentage)}%
+</Typography>
+<Box
+  sx={{
+    height: `${Math.max(10, percentage)}%`,
+    width: '100%',
+    bgcolor: 'blueviolet',
+    borderTopLeftRadius: '4px',
+    borderTopRightRadius: '4px',
+    minHeight: '10px',
+    transition: 'height 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+  }}
+/>
+                                            <Typography
+                                                variant="caption"
                                                 sx={{
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: 'center',
-                                                    width: `${100 / ((Array.isArray(poll.results) ? poll.results.length : 1) || 1)}%`
+                                                    color: 'rgba(255, 255, 255, 0.7)',
+                                                    mt: 1,
+                                                    textAlign: 'center',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    width: '100%',
                                                 }}
                                             >
-                                                  <Box
-          sx={{
-            height: `${Math.max(10, percentage)}%`, // <-- AJUSTE AQUI
-            width: '100%',
-            bgcolor: 'blueviolet',
-            borderTopLeftRadius: '4px',
-            borderTopRightRadius: '4px',
-            minHeight: '10px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-            position: 'relative',
-            transition: 'height 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-          }}
-        >
-          <Typography
-            variant="body2"
-            sx={{
-              color: 'white',
-              fontWeight: 'bold',
-              position: 'absolute',
-              top: '-25px',
-            }}
-          >
-            {Math.round(percentage)}%
-          </Typography>
-        </Box>
-        <Typography
-          variant="caption"
-          sx={{
-            color: 'rgba(255, 255, 255, 0.7)',
-            mt: 1,
-            textAlign: 'center',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            width: '100%',
-          }}
-        >
-          {result.text.length > 15 ? result.text.substring(0, 15) + '...' : result.text}
-        </Typography>
-      </Box>
-    );
-  })}
-</Box>
+                                                {result.text.length > 15 ? result.text.substring(0, 15) + '...' : result.text}
+                                            </Typography>
+                                        </Box>
+                                    );
+                                })}
                             </Box>
 
                             {/* Total de votos */}
@@ -342,7 +333,7 @@ export default function PollResults() {
                                     const percentage = totalVotes > 0 ? Math.round((result.votes / totalVotes) * 100) : 0;
 
                                     return (
-                                        <resultCard key={result.id || index}>
+                                        <div key={result.id || index}>
                                             <Typography
                                                 variant="h6"
                                                 sx={{
@@ -389,7 +380,7 @@ export default function PollResults() {
                                                     {percentage}%
                                                 </Typography>
                                             </Box>
-                                        </resultCard>
+                                        </div>
                                     );
                                 })
                             ) : (
