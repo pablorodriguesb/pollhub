@@ -1,6 +1,6 @@
-import * as React from 'react';
 import { useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { Helmet } from "react-helmet";
 import {
   Box,
   CssBaseline,
@@ -229,6 +229,9 @@ export default function Login() {
 
   return (
     <>
+     <Helmet>
+        <title>Login - PollHub</title>
+      </Helmet>
       <CssBaseline />
       <LoginContainer>
         <Container maxWidth="sm">

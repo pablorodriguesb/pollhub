@@ -1,6 +1,6 @@
-import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from "react-helmet";
 import {
     Box,
     CssBaseline,
@@ -119,6 +119,9 @@ export default function PollResults() {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            <Helmet>
+                <title>Resultados da Enquete - PollHub</title>
+            </Helmet>
             <CssBaseline />
 
             {/* AppBar fixo no topo */}
@@ -272,29 +275,29 @@ export default function PollResults() {
                                                 height: '100%',
                                             }}
                                         >
-                                           {/* Porcentagem acima da barra */}
-<Typography
-  variant="body2"
-  sx={{
-    color: 'white',
-    fontWeight: 'bold',
-    mb: 0.5, // margin bottom para afastar da barra
-    textAlign: 'center',
-  }}
->
-  {Math.round(percentage)}%
-</Typography>
-<Box
-  sx={{
-    height: `${Math.max(10, percentage)}%`,
-    width: '100%',
-    bgcolor: 'blueviolet',
-    borderTopLeftRadius: '4px',
-    borderTopRightRadius: '4px',
-    minHeight: '10px',
-    transition: 'height 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-  }}
-/>
+                                            {/* Porcentagem acima da barra */}
+                                            <Typography
+                                                variant="body2"
+                                                sx={{
+                                                    color: 'white',
+                                                    fontWeight: 'bold',
+                                                    mb: 0.5, // margin bottom para afastar da barra
+                                                    textAlign: 'center',
+                                                }}
+                                            >
+                                                {Math.round(percentage)}%
+                                            </Typography>
+                                            <Box
+                                                sx={{
+                                                    height: `${Math.max(10, percentage)}%`,
+                                                    width: '100%',
+                                                    bgcolor: 'blueviolet',
+                                                    borderTopLeftRadius: '4px',
+                                                    borderTopRightRadius: '4px',
+                                                    minHeight: '10px',
+                                                    transition: 'height 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                }}
+                                            />
                                             <Typography
                                                 variant="caption"
                                                 sx={{

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Helmet } from "react-helmet";
 import {
   Box,
   CssBaseline,
@@ -376,6 +377,9 @@ export default function AllPolls() {
 
   return (
     <Box sx={{ display: 'flex' }}>
+       <Helmet>
+      <title>Todas Enquetes - PollHub</title>
+    </Helmet>
       <CssBaseline />
       {/* AppBar fixo no topo - altura ajustada para alinhar com cabeçalho do menu lateral */}
       <StyledAppBar position="fixed">

@@ -1,6 +1,6 @@
-import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Helmet } from "react-helmet";
 import {
   Box,
   CssBaseline,
@@ -406,6 +406,9 @@ export default function UserVotes() {
 
   return (
     <Box sx={{ display: 'flex' }}>
+      <Helmet>
+        <title>Minhas Votações - PollHub</title>
+      </Helmet>
       <CssBaseline />
       
       {/* App bar */}

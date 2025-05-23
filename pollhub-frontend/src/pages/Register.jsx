@@ -1,6 +1,6 @@
-import * as React from 'react';
 import { useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { Helmet } from "react-helmet";
 import {
   Box,
   CssBaseline,
@@ -234,6 +234,9 @@ export default function Register() {
 
   return (
     <>
+     <Helmet>
+        <title>Cadastro - PollHub</title>
+      </Helmet>
       <CssBaseline />
       <RegisterContainer>
         <Container maxWidth="sm">
