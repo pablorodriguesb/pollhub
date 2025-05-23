@@ -31,7 +31,6 @@ import PollIcon from '@mui/icons-material/Poll';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import HowToVoteIcon from '@mui/icons-material/HowToVote';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import api from '../api/client';
@@ -152,6 +151,10 @@ export default function AllPolls() {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
+  const handleDelete = (id) => {
+  setPolls(prevPolls => prevPolls.filter(poll => poll.id !== id));
+};
 
   // Usar o método logout do contexto
   const handleLogout = () => {
@@ -531,6 +534,7 @@ export default function AllPolls() {
                       showResults={showResultsMap[poll.id] || false}
                       isOwner={false}
                       onToggleResults={handleToggleResults}
+                      onDelete={handleDelete}
                     />
                   </Grid>
                 ))}

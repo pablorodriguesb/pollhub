@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -35,11 +34,12 @@ import { useNavigate } from 'react-router-dom';
 import UndoIcon from '@mui/icons-material/Undo';
 import InfoIcon from '@mui/icons-material/Info';
 
-export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isOwner, onToggleResults }) {
+export default function PollCard({ poll, onDelete, onVote, onVerDetalhes, showResults, isOwner, onToggleResults }) {
   const [selectedOption, setSelectedOption] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const { user } = useAuth();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const isAdmin = user?.role === "ROLE_ADMIN";
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -48,7 +48,7 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
   const menuOpen = Boolean(anchorEl);
   const navigate = useNavigate();
 
-  const isOwnerOrAdmin = user && (user.username === poll.createdBy || user.role === 'ADMIN');
+  const isOwnerOrAdmin = user && (user.username === poll.createdBy || user.role === 'ROLE_ADMIN');
 
   // Calcular total de votos
   const totalVotes = poll.options.reduce((sum, option) => sum + (option.voteCount || 0), 0);
@@ -79,6 +79,20 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
   const handleDeleteClick = () => {
     handleMenuClose();
     setConfirmDelete(true);
+  };
+
+  // Função de deleção do admin
+  const handleAdminDelete = async () => {
+    if (window.confirm("Tem certeza que deseja deletar esta enquete como ADMIN?")) {
+      try {
+        await api.delete(`/admin/polls/${poll.id}`, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        if (onDelete) onDelete(poll.id);
+      } catch (err) {
+        alert("Erro ao deletar enquete como admin!");
+      }
+    }
   };
 
   const handleDeleteConfirm = async () => {
@@ -640,11 +654,54 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
               </Button>
             )}
           </Box>
-
-
-
+          {/* Botão de deletar para o admin */}
+          {isAdmin && (
+            <Button
+              startIcon={<DeleteIcon sx={{ fontSize: '1rem' }} />}
+              variant="outlined"
+              fullWidth
+              onClick={handleAdminDelete}
+              sx={{
+                mt: 1,
+                borderColor: '#f44336',
+                color: '#f44336',
+                '&:hover': {
+                  borderColor: '#f44336',
+                  backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                },
+                textTransform: 'none',
+                fontWeight: 500,
+                fontSize: '0.85rem',
+                borderRadius: 1.5,
+                padding: '6px 12px',
+                height: '32px'
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '100%',
+                  overflow: 'hidden'
+                }}
+              >
+                <span
+                  style={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    width: '100%',
+                    display: 'block',
+                    textAlign: 'center'
+                  }}
+                  title="Remover Enquete (Admin)"
+                >
+                  Remover (Admin)
+                </span>
+              </Box>
+            </Button>
+          )}
         </CardActions>
-
       </Card>
 
       {/* Menu de opções */}
@@ -687,7 +744,6 @@ export default function PollCard({ poll, onVote, onVerDetalhes, showResults, isO
           Excluir
         </MenuItem>
       </Menu>
-
 
       {/* Dialog de confirmação de exclusão */}
       <Dialog

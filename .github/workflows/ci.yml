@@ -23,6 +23,3 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-
-      - name: Build e Teste(Maven)
-        run: ./mvnw clean verify

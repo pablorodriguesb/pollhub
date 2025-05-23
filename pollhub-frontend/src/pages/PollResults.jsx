@@ -276,50 +276,51 @@ export default function PollResults() {
                                                     width: `${100 / ((Array.isArray(poll.results) ? poll.results.length : 1) || 1)}%`
                                                 }}
                                             >
-                                                <Box
-                                                    sx={{
-                                                        height: `${Math.max(10, percentage * 1.5)}%`,
-                                                        width: '100%',
-                                                        bgcolor: 'blueviolet',
-                                                        borderTopLeftRadius: '4px',
-                                                        borderTopRightRadius: '4px',
-                                                        minHeight: '10px',
-                                                        display: 'flex',
-                                                        alignItems: 'flex-start',
-                                                        justifyContent: 'center',
-                                                        position: 'relative',
-                                                    }}
-                                                >
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{
-                                                            color: 'white',
-                                                            fontWeight: 'bold',
-                                                            position: 'absolute',
-                                                            top: '-25px',
-                                                        }}
-                                                    >
-                                                        {Math.round(percentage)}%
-                                                    </Typography>
-                                                </Box>
-                                                <Typography
-                                                    variant="caption"
-                                                    sx={{
-                                                        color: 'rgba(255, 255, 255, 0.7)',
-                                                        mt: 1,
-                                                        textAlign: 'center',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap',
-                                                        width: '100%',
-                                                    }}
-                                                >
-                                                    {result.text.length > 15 ? result.text.substring(0, 15) + '...' : result.text}
-                                                </Typography>
-                                            </Box>
-                                        );
-                                    })}
-                                </Box>
+                                                  <Box
+          sx={{
+            height: `${Math.max(10, percentage)}%`, // <-- AJUSTE AQUI
+            width: '100%',
+            bgcolor: 'blueviolet',
+            borderTopLeftRadius: '4px',
+            borderTopRightRadius: '4px',
+            minHeight: '10px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            position: 'relative',
+            transition: 'height 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        >
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'white',
+              fontWeight: 'bold',
+              position: 'absolute',
+              top: '-25px',
+            }}
+          >
+            {Math.round(percentage)}%
+          </Typography>
+        </Box>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'rgba(255, 255, 255, 0.7)',
+            mt: 1,
+            textAlign: 'center',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            width: '100%',
+          }}
+        >
+          {result.text.length > 15 ? result.text.substring(0, 15) + '...' : result.text}
+        </Typography>
+      </Box>
+    );
+  })}
+</Box>
                             </Box>
 
                             {/* Total de votos */}

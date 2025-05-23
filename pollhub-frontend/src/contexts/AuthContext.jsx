@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import api from '../api/client';
+import { jwtDecode } from "jwt-decode";
 
 const AuthContext = createContext(null);
 
@@ -22,7 +23,6 @@ export const AuthProvider = ({ children }) => {
       }
 
       try {
-        // ✅ Garante que o header é atualizado ANTES da requisição
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         
         await api.get('/api/users/me/polls');
@@ -46,28 +46,25 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (credentials) => {
-    try {
-      const response = await api.post('/api/auth/login', credentials);
-      
-      // 1. Extração segura dos dados da resposta
-      const { token } = response.data;
-  
-      // Validação básica dos dados recebidos
-      if (!token) {
-        throw new Error('Token não encontrado na resposta do servidor');
-      }
-  
-      // 2. Armazenamento do token
-      localStorage.setItem('token', token);
+  try {
+    const response = await api.post('/api/auth/login', credentials);
+    const { token } = response.data;
+    if (!token) throw new Error('Token não encontrado na resposta do servidor');
 
-      // Crie o userPayload diretamente com as credenciais
-    const userPayload = { username: credentials.username };
-  
-      localStorage.setItem('user', JSON.stringify(userPayload));
-      setUser(userPayload);
+      const decoded = jwtDecode(token);
       
-      setIsAuthenticated(true);
-      return true;
+    // Crie o userPayload com os dados do JWT
+    const userPayload = {
+      username: decoded.sub,
+      role: decoded.role,
+      token: token
+    };
+
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userPayload));
+    setUser(userPayload);
+    setIsAuthenticated(true);
+    return true;
   
     } catch (error) {
       console.error('Erro no login:', error);

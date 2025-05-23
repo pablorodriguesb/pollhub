@@ -39,10 +39,6 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
-import InfoIcon from '@mui/icons-material/Info';
-
-
-
 
 // Definição da largura do drawer (menu lateral)
 const drawerWidth = 240;
@@ -347,40 +343,40 @@ export default function Dashboard() {
         </List>
       </Box>
 
-    <Box>
-      {/* Perfil do usuario */}
-      <Box sx={{ py: 1 }}>
-        <ListItem disablePadding>
-          <ListItemButton sx={{ py: 1.5 }}>
-            <ListItemIcon sx={{ minWidth: '38px', color: 'blueviolet' }}>
-              <PersonIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary={user ? (user.name || user.username || user.email || 'Usuário') : 'Usuário'}
-              primaryTypographyProps={{ sx: { color: 'blueviolet', mt: 0.3 } }}
-            />
-          </ListItemButton>
-        </ListItem>
-      </Box>
+      <Box>
+        {/* Perfil do usuario */}
+        <Box sx={{ py: 1 }}>
+          <ListItem disablePadding>
+            <ListItemButton sx={{ py: 1.5 }}>
+              <ListItemIcon sx={{ minWidth: '38px', color: 'blueviolet' }}>
+                <PersonIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary={user ? (user.name || user.username || user.email || 'Usuário') : 'Usuário'}
+                primaryTypographyProps={{ sx: { color: 'blueviolet', mt: 0.3 } }}
+              />
+            </ListItemButton>
+          </ListItem>
+        </Box>
 
-      {/* Divider e botão de sair */}
-      <Divider sx={{ backgroundColor: 'rgba(255, 255, 255, 0.12)' }} />
-      <List>
-        <ListItem disablePadding>
-          <ListItemButton onClick={handleLogout} sx={{ py: 1.5 }}>
-            <ListItemIcon sx={{ minWidth: '40px', color: 'white' }}>
-              <LogoutIcon />
-            </ListItemIcon>
-            <ListItemText
-              primary="Sair"
-              primaryTypographyProps={{ sx: { color: 'white' } }}
-            />
-          </ListItemButton>
-        </ListItem>
-      </List>
+        {/* Divider e botão de sair */}
+        <Divider sx={{ backgroundColor: 'rgba(255, 255, 255, 0.12)' }} />
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton onClick={handleLogout} sx={{ py: 1.5 }}>
+              <ListItemIcon sx={{ minWidth: '40px', color: 'white' }}>
+                <LogoutIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Sair"
+                primaryTypographyProps={{ sx: { color: 'white' } }}
+              />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Box>
     </Box>
-  </Box>
-);
+  );
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -510,7 +506,7 @@ export default function Dashboard() {
                 sx={{
                   mb: 3,
                   width: '100%',
-                  display: 'grid', 
+                  display: 'grid',
                   gridTemplateColumns: {
                     xs: '1fr',
                     sm: 'repeat(2, 1fr)',
@@ -526,8 +522,8 @@ export default function Dashboard() {
                     sm={6}
                     md={4}
                     sx={{
-                      minWidth: 0, 
-                      display: 'flex', 
+                      minWidth: 0,
+                      display: 'flex',
                       height: 'auto'
                     }}
                   >
@@ -578,87 +574,87 @@ export default function Dashboard() {
       </ContentWrapper>
 
       <Dialog
-  open={!!detalheAberto}
-  onClose={() => setDetalheAberto(null)}
-  fullWidth
-  maxWidth="sm"
-  PaperProps={{
-    sx: {
-      minHeight: '30vh',
-      maxHeight: '80vh',
-      borderRadius: 3,
-      overflowX: 'hidden',
-      overflowY: 'auto',
-      backgroundColor: 'hsl(220, 30%, 18%)', // igual ao dashboard, se quiser
-    }
-  }}
->
-  {/* Título */}
-  <DialogTitle
-  sx={{
-    wordBreak: 'break-all',
-    overflowWrap: 'break-word',
-    p: 0,
-    background: 'transparent'
-  }}
->
-  <Typography
-    variant="h6"
-    sx={{
-      fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
-      fontWeight: 400,         
-      fontSize: '1.25rem',       
-      color: 'whitesmoke',       
-      lineHeight: 1.3,
-      px: 3,
-      pt: 2,
-      pb: 1,
-      wordBreak: 'break-all'
-    }}
-  >
-    {detalheAberto?.title}
-  </Typography>
-</DialogTitle>
+        open={!!detalheAberto}
+        onClose={() => setDetalheAberto(null)}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{
+          sx: {
+            minHeight: '30vh',
+            maxHeight: '80vh',
+            borderRadius: 3,
+            overflowX: 'hidden',
+            overflowY: 'auto',
+            backgroundColor: 'hsl(220, 30%, 18%)', // igual ao dashboard, se quiser
+          }
+        }}
+      >
+        {/* Título */}
+        <DialogTitle
+          sx={{
+            wordBreak: 'break-all',
+            overflowWrap: 'break-word',
+            p: 0,
+            background: 'transparent'
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{
+              fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+              fontWeight: 400,
+              fontSize: '1.25rem',
+              color: 'whitesmoke',
+              lineHeight: 1.3,
+              px: 3,
+              pt: 2,
+              pb: 1,
+              wordBreak: 'break-all'
+            }}
+          >
+            {detalheAberto?.title}
+          </Typography>
+        </DialogTitle>
 
-<Divider sx={{ mx: 2, my: 0 }} />
+        <Divider sx={{ mx: 2, my: 0 }} />
 
-<DialogContent
-  sx={{
-    p: 3,
-    pt: 2,
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    color: 'white',
-  }}
->
-  <Typography
-    variant="subtitle2"
-    sx={{
-      fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
-      fontWeight: 500,
-      fontSize: '1.08rem',
-      mb: 1,
-      color: 'rgba(255,255,255,0.85)'
-    }}
-  >
-    Descrição
-  </Typography>
-  <Typography
-    sx={{
-      fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
-      whiteSpace: 'pre-line',
-      wordBreak: 'break-word',
-      fontSize: '1rem',
-      color: 'rgba(255,255,255,0.96)',
-      flex: 1,
-    }}
-  >
-    {detalheAberto?.description}
-  </Typography>
-</DialogContent>
+        <DialogContent
+          sx={{
+            p: 3,
+            pt: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            color: 'white',
+          }}
+        >
+          <Typography
+            variant="subtitle2"
+            sx={{
+              fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+              fontWeight: 500,
+              fontSize: '1.08rem',
+              mb: 1,
+              color: 'rgba(255,255,255,0.85)'
+            }}
+          >
+            Descrição
+          </Typography>
+          <Typography
+            sx={{
+              fontFamily: '"Roboto", "Segoe UI", "Arial", sans-serif',
+              whiteSpace: 'pre-line',
+              wordBreak: 'break-word',
+              fontSize: '1rem',
+              color: 'rgba(255,255,255,0.96)',
+              flex: 1,
+            }}
+          >
+            {detalheAberto?.description}
+          </Typography>
+        </DialogContent>
 
-</Dialog>
+      </Dialog>
     </Box>
   );
 }

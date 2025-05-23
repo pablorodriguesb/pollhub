@@ -61,9 +61,11 @@ export default function PollCreationDialog({ open, onClose, onSubmit }) {
   };
 
   const handleAddOption = () => {
-    setOptions([...options, '']);
-    setErrors((err) => ({ ...err, options: [...err.options, ''] }));
-  };
+  if (options.length >= 6) return; // limitando para 6 opcoes 
+  setOptions([...options, '']);
+  setErrors((err) => ({ ...err, options: [...err.options, ''] }));
+};
+
 
   const handleRemoveOption = (index) => {
     if (options.length <= 2) return; // Manter pelo menos 2 opções
@@ -392,6 +394,7 @@ export default function PollCreationDialog({ open, onClose, onSubmit }) {
           <Button
             startIcon={<AddCircleIcon />}
             onClick={handleAddOption}
+            disabled={options.length >= 6}
             sx={{
               mt: 1,
               color: 'rgba(255, 255, 255, 0.9)',
