@@ -47,17 +47,24 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
-                        // libera gets publicos
+                        // Libera GETs públicos de enquetes
                         .requestMatchers(HttpMethod.GET,
                                 "/api/polls",
                                 "/api/polls/public",
                                 "/api/polls/*",
                                 "/api/polls/*/results"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/users/me/polls").authenticated()
-                        .requestMatchers(HttpMethod.DELETE,
-                                "/api/polls/**").authenticated()
+
+                        // Libera DELETE de enquetes pelo ADMIN no endpoint /admin/polls/**
+                        .requestMatchers(HttpMethod.DELETE, "/admin/polls/**").hasRole("ADMIN")
+
+                        // Permite acesso autenticado ao GET dos polls do próprio usuário
+                        .requestMatchers(HttpMethod.GET, "/api/users/me/polls").authenticated()
+
+                        // Permite DELETE de enquetes comuns para usuários autenticados
+                        .requestMatchers(HttpMethod.DELETE, "/api/polls/**").authenticated()
+
+                        // Qualquer outra requisição precisa estar autenticada
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

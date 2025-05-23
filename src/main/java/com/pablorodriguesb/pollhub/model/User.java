@@ -33,4 +33,7 @@ public class User {
 
     @Column(nullable = false)
     private LocalDateTime dataCadastro;
+
+    @Column(nullable = false)
+    private String role = "ROLE_USER";
 }
