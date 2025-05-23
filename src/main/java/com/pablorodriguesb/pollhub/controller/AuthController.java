@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,9 +44,14 @@ public class AuthController {
             throw new Exception("Usuário ou senha inválidos", e);
         }
 
-        final UserDetails userDetails =
-                userDetailsService.loadUserByUsername(userDTO.getUsername());
-        final String token = jwtTokenUtil.generateToken(userDetails);
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(userDTO.getUsername());
+
+        String role = userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElse("ROLE_USER");
+
+        final String token = jwtTokenUtil.generateToken(userDetails, role);
 
         return ResponseEntity.ok(new AuthResponse(token));
     }
