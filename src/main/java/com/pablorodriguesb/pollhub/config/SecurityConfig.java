@@ -46,7 +46,8 @@ public class SecurityConfig {
                                 "/api/users/register",
                                 "/login",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/ping"
                         ).permitAll()
                         // Libera GETs públicos de enquetes
                         .requestMatchers(HttpMethod.GET,
