@@ -608,7 +608,7 @@ export default function PollCard({ poll, onDelete, onVote, onVerDetalhes, showRe
               </Box>
             </Button>
 
-            {isOwnerOrAdmin && (
+            {user && (
               <Button
                 startIcon={<HowToVoteIcon sx={{ fontSize: '1rem' }} />}
                 variant="outlined"
